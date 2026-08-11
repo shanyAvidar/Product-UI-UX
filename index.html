@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RatingIQ — Product UI/UX</title>
+<style>
+  :root{
+    --gold:#C9A86A; --gold-dark:#A88B52;
+    --bg:#FAF9F7; --fg:#1C2A39; --muted:#6B7A8A;
+    --card:#FFFFFF; --border:rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:64px 24px;}
+  .wrap{width:100%;max-width:1120px;}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+  .brand-mark{width:40px;height:40px;border-radius:11px;background:rgba(201,168,106,0.16);display:flex;align-items:center;justify-content:center;color:var(--gold-dark);}
+  .brand-mark svg{width:22px;height:22px;}
+  h1{font-size:30px;font-weight:800;letter-spacing:-0.5px;}
+  .sub{font-size:15px;color:var(--muted);margin:8px 0 40px;line-height:1.55;max-width:680px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
+  .card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px 26px 22px;box-shadow:0 1px 3px rgba(0,0,0,0.05),0 8px 24px rgba(0,0,0,0.04);transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,0.1);border-color:var(--gold);}
+  .chip{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .chip svg{width:24px;height:24px;}
+  .chip.chainiq{background:rgba(28,42,57,0.10);color:var(--fg);}
+  .chip.guestiq{background:rgba(59,130,246,0.13);color:#2f6fdb;}
+  .chip.operatingiq{background:rgba(201,168,106,0.20);color:var(--gold-dark);}
+  .chip.replyiq{background:rgba(58,122,85,0.14);color:#3a7a55;}
+  .card h2{font-size:19px;font-weight:800;margin-bottom:5px;}
+  .card .tag{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;}
+  .card p{font-size:13.5px;color:var(--muted);line-height:1.5;}
+  .card .go{margin-top:16px;font-size:13px;font-weight:700;color:var(--gold-dark);display:inline-flex;align-items:center;gap:5px;}
+  .foot{margin-top:44px;font-size:12.5px;color:var(--muted);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+    <h1>RatingIQ — Product UI/UX</h1>
+  </div>
+  <p class="sub">Interactive prototypes of the RatingIQ hotel-reputation platform — the chain view (ChainIQ) and its three per-hotel modules (GuestIQ, OperatingIQ, ReplyIQ). Click any card to open it; the sidebars link across all four.</p>
+
+  <div class="grid">
+    <a class="card" href="chainiq/">
+      <div class="chip chainiq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+      <div class="tag">Chain level</div>
+      <h2>ChainIQ</h2>
+      <p>Chain-level portfolio dashboard — every property's ratings, review activity, chain comparison, and the people leaderboard.</p>
+      <span class="go">Open →</span>
+    </a>
+
+    <a class="card" href="guestiq/">
+      <div class="chip guestiq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <div class="tag">Per hotel</div>
+      <h2>GuestIQ</h2>
+      <p>Guest insights — ratings, review volume &amp; trend, guest types, length of stay, countries of origin, and response rate.</p>
+      <span class="go">Open →</span>
+    </a>
+
+    <a class="card" href="operatingiq/">
+      <div class="chip operatingiq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="tag">Per hotel</div>
+      <h2>OperatingIQ</h2>
+      <p>Operations insights — complaint detection, issue drill-downs, the assigned team, and recovery-impact simulation.</p>
+      <span class="go">Open →</span>
+    </a>
+
+    <a class="card" href="replyiq/">
+      <div class="chip replyiq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="tag">Per hotel</div>
+      <h2>ReplyIQ</h2>
+      <p>Automated review-response management — AI-suggested replies to guest reviews, quality scoring, and one-click posting.</p>
+      <span class="go">Open →</span>
+    </a>
+  </div>
+
+  <p class="foot">
+    Single-file HTML prototypes (inline CSS + JS, no build step) of the RatingIQ platform.
+  </p>
+</div>
+</body>
+</html>

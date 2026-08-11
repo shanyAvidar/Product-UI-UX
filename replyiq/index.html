@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReplyIQ — Reviews &amp; Responses | RatingIQ</title>
+<style>
+  :root{
+    --gold:#C9A86A; --gold-dark:#A88B52; --gold-soft:rgba(201,168,106,0.12);
+    --bg:#FAF9F7; --panel:#FFFFFF; --fg:#1C2A39; --text-2:#2E4050; --muted:#6B7A8A;
+    --line:rgba(0,0,0,0.07); --line-soft:rgba(0,0,0,0.045);
+    --green:#4A8F6B; --green-soft:rgba(74,143,107,0.12);
+    --orange:#C0873B; --orange-soft:rgba(192,135,59,0.13);
+    --red:#B85050; --red-soft:rgba(184,80,80,0.12);
+    --blue:#3B6FB0;
+    --sidebar-w:230px; --topbar-h:56px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--panel);border-right:1px solid var(--line);padding:16px 14px;display:flex;flex-direction:column;z-index:20;}
+  .logo{display:flex;align-items:center;gap:9px;padding:4px 6px 16px;}
+  .logo-mark{width:28px;height:28px;border-radius:8px;background:var(--fg);display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0;}
+  .logo-mark svg{width:16px;height:16px;}
+  .logo-text{font-size:16px;font-weight:800;letter-spacing:-0.3px;}
+  .hotel-chip{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:10px;background:var(--gold-soft);margin-bottom:6px;}
+  .hotel-chip .h-ic{width:26px;height:26px;border-radius:7px;background:rgba(201,168,106,0.22);display:flex;align-items:center;justify-content:center;color:var(--gold-dark);flex-shrink:0;}
+  .hotel-chip .h-ic svg{width:15px;height:15px;}
+  .hotel-name{font-size:13.5px;font-weight:700;line-height:1.15;}
+  .hotel-back{font-size:11px;color:var(--muted);font-weight:600;margin-top:1px;}
+  .chain-back{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;text-decoration:none;margin-bottom:6px;}
+  .chain-back:hover{background:var(--bg);}
+  .chain-back .cb-ic{width:34px;height:34px;border-radius:9px;background:var(--gold-soft);border:1px solid rgba(201,168,106,0.3);display:flex;align-items:center;justify-content:center;color:var(--gold-dark);flex-shrink:0;}
+  .chain-back .cb-ic svg{width:19px;height:19px;}
+  .chain-back .cb-lbl{font-size:15px;font-weight:800;color:var(--gold-dark);letter-spacing:-0.2px;line-height:1.1;}
+  .chain-back .cb-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .side-hotel2{display:flex;align-items:center;gap:9px;padding:8px;border-radius:9px;margin-bottom:16px;cursor:pointer;}
+  .side-hotel2:hover{background:var(--bg);}
+  .side-hotel2 .dot{width:26px;height:26px;border-radius:50%;background:#E7DFCF;color:var(--gold-dark);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .side-hotel2 span{font-size:13px;font-weight:600;color:var(--text-2);}
+  .nav-label{font-size:10px;font-weight:700;letter-spacing:0.09em;color:var(--muted);padding:0 8px 8px;text-transform:uppercase;}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:7px 10px;border-radius:10px;color:var(--text-2);text-decoration:none;font-size:14px;font-weight:600;cursor:pointer;transition:background .13s,color .13s;margin-bottom:3px;}
+  .nav-item:hover{background:var(--bg);}
+  .nav-item.active{background:#F0EDE9;color:var(--fg);}
+  .nav-chip{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .nav-chip svg{width:17px;height:17px;}
+  .nav-chip.guest{background:rgba(59,111,176,0.13);color:#3B6FB0;}
+  .nav-chip.oper{background:rgba(201,168,106,0.20);color:var(--gold-dark);}
+  .nav-chip.reply{background:rgba(74,143,107,0.15);color:var(--green);}
+  .side-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line-soft);}
+  .side-foot .nav-item{color:var(--muted);}
+  .side-foot .nav-item svg{width:19px;height:19px;flex-shrink:0;color:var(--muted);}
+
+  /* ---------- Topbar ---------- */
+  .topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:rgba(250,249,247,0.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 26px;z-index:15;}
+  .tb-item{font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;}
+  .tb-item:hover{color:var(--fg);}
+  .tb-badge{font-size:11px;font-weight:700;color:var(--gold-dark);background:var(--gold-soft);border:1px solid rgba(201,168,106,0.3);padding:3px 10px;border-radius:20px;}
+  .tb-user{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--fg);}
+  .tb-user .av{width:24px;height:24px;border-radius:50%;background:var(--fg);color:var(--gold);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+
+  /* ---------- Main ---------- */
+  main{margin-left:var(--sidebar-w);padding:calc(var(--topbar-h) + 30px) 40px 70px;}
+  .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px;}
+  .page-title{font-size:27px;font-weight:800;letter-spacing:-0.6px;}
+  .page-sub{font-size:14px;color:var(--muted);margin-top:3px;}
+  .head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .btn{font-size:13px;font-weight:700;padding:8px 14px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--text-2);cursor:pointer;transition:border-color .13s,background .13s,color .13s;display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover{border-color:var(--gold);color:var(--fg);}
+  .btn.sel{background:var(--gold-soft);border-color:rgba(201,168,106,0.4);color:var(--gold-dark);}
+
+  .filter-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px;}
+  .platforms{display:flex;gap:8px;flex-wrap:wrap;}
+  .plat{font-size:13px;font-weight:700;padding:8px 15px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;transition:all .13s;}
+  .plat:hover{color:var(--fg);}
+  .plat.active{background:rgba(0,53,128,0.08);color:#0a3f8a;border-color:rgba(10,63,138,0.25);}
+  .toggle-pair{display:flex;gap:6px;}
+  .toggle-pair .btn.sel{background:var(--fg);border-color:var(--fg);color:#fff;}
+
+  /* stat cards */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px;}
+  .stat{border-radius:16px;padding:22px 24px;text-align:center;border:1px solid var(--line-soft);}
+  .stat.a{background:linear-gradient(180deg,rgba(59,111,176,0.09),rgba(59,111,176,0.03));}
+  .stat.b{background:linear-gradient(180deg,rgba(74,143,107,0.11),rgba(74,143,107,0.03));}
+  .stat.c{background:linear-gradient(180deg,rgba(150,110,180,0.11),rgba(150,110,180,0.03));}
+  .stat-lbl{font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .stat-num{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1;}
+  .stat-sub{font-size:11.5px;color:var(--muted);margin-top:7px;}
+
+  /* search bar */
+  .search-row{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+  .search-in{flex:1;min-width:220px;font-size:14px;padding:11px 15px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--fg);outline:none;}
+  .search-in:focus{border-color:rgba(201,168,106,0.5);}
+  .search-in::placeholder{color:var(--muted);}
+  .mini-lbl{font-size:12px;color:var(--muted);font-weight:600;}
+  .mini-in{width:66px;font-size:13px;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--fg);outline:none;}
+  .sort-sel{font-size:13px;font-weight:600;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--text-2);cursor:pointer;outline:none;}
+
+  /* review card */
+  .rev{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,0.03);}
+  .rev-top{display:grid;grid-template-columns:180px 1fr auto;gap:22px;}
+  .rev-meta .r-name{font-size:16px;font-weight:800;}
+  .rev-meta .r-country{font-size:12.5px;color:var(--muted);margin-bottom:12px;}
+  .r-attr{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);margin-bottom:7px;}
+  .r-attr svg{width:14px;height:14px;color:var(--muted);flex-shrink:0;}
+  .r-lang{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin-top:4px;}
+  .r-lang svg{width:12px;height:12px;}
+
+  .rev-body .r-date{font-size:12.5px;color:var(--muted);margin-bottom:2px;}
+  .r-title{font-size:15px;font-weight:800;margin-bottom:10px;}
+  .r-line{font-size:13.5px;line-height:1.5;margin-bottom:5px;display:flex;gap:8px;}
+  .r-line .s{font-weight:800;flex-shrink:0;}
+  .r-line.pos .s{color:var(--green);} .r-line.pos{color:var(--text-2);}
+  .r-line.neg .s{color:var(--red);}   .r-line.neg{color:var(--text-2);}
+
+  .rev-score{display:flex;align-items:flex-start;gap:12px;}
+  .ring{width:44px;height:44px;position:relative;flex-shrink:0;}
+  .ring .rt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);}
+  .rate{font-size:16px;font-weight:800;padding:7px 11px;border-radius:9px;min-width:46px;text-align:center;}
+  .rate.g{background:var(--green-soft);color:var(--green);}
+  .rate.o{background:var(--orange-soft);color:var(--orange);}
+  .rate.r{background:var(--red-soft);color:var(--red);}
+
+  /* response block */
+  .resp{margin-top:18px;background:var(--bg);border:1px solid var(--line-soft);border-radius:13px;padding:16px 18px;}
+  .resp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  .resp-head .lhs{display:flex;align-items:center;gap:9px;}
+  .resp-lbl{font-size:11px;font-weight:800;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;}
+  .sug{font-size:10.5px;font-weight:700;color:var(--gold-dark);background:var(--gold-soft);padding:2px 8px;border-radius:20px;}
+  .link{font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:none;border:none;}
+  .link:hover{color:var(--fg);}
+  .link svg{width:13px;height:13px;}
+  .resp-text{font-size:13.5px;line-height:1.6;color:var(--text-2);white-space:pre-line;}
+  .resp-actions{display:flex;align-items:center;gap:16px;margin-top:14px;flex-wrap:wrap;}
+  .act{font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;background:none;border:none;}
+  .act:hover{color:var(--fg);}
+  .btn-post{font-size:12.5px;font-weight:700;color:var(--green);background:var(--green-soft);border:1px solid rgba(74,143,107,0.25);padding:7px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+  .btn-post.done{background:var(--green);color:#fff;border-color:var(--green);}
+  .btn-regen{font-size:12.5px;font-weight:700;color:#fff;background:var(--gold-dark);border:none;padding:8px 15px;border-radius:8px;cursor:pointer;margin-top:14px;display:inline-flex;align-items:center;gap:6px;}
+  .btn-regen:hover{background:var(--gold);}
+  .btn-regen.spinning{opacity:0.7;pointer-events:none;}
+  .btn-regen svg{width:13px;height:13px;}
+  .no-resp{font-size:13px;color:var(--muted);font-style:italic;margin-bottom:12px;}
+
+  .pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:26px;font-size:13px;color:var(--muted);}
+  .pager button{font-size:13px;font-weight:700;color:var(--text-2);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 13px;cursor:pointer;}
+  .pager button:disabled{opacity:0.4;cursor:default;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--fg);color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:all .2s;z-index:50;box-shadow:0 8px 30px rgba(0,0,0,0.25);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:820px){
+    .sidebar{display:none;} .topbar{left:0;} main{margin-left:0;padding:24px 18px 60px;}
+    .rev-top{grid-template-columns:1fr;gap:12px;} .stats{grid-template-columns:1fr;}
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spin{animation:spin .8s linear infinite;}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-6.2 3.6 1.6-6.7L2.2 8.9l6.9-.6z"/></svg></div>
+    <div class="logo-text">RatingIQ</div>
+  </div>
+
+  <a class="chain-back" href="../chainiq/">
+    <div class="cb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+    <div>
+      <div class="cb-lbl">← ChainIQ</div>
+      <div class="cb-sub">Back to chain view</div>
+    </div>
+  </a>
+  <div class="hotel-chip">
+    <div class="h-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M9 8h1"/><path d="M14 8h1"/><path d="M9 12h1"/><path d="M14 12h1"/><path d="M10 21v-3a2 2 0 0 1 4 0v3"/></svg></div>
+    <div>
+      <div class="hotel-name">Aurelia Bay Resort</div>
+      <div class="hotel-back">Playa Serena, Spain</div>
+    </div>
+  </div>
+
+  <div class="nav-label">View</div>
+  <a class="nav-item" href="../guestiq/"><span class="nav-chip guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>GuestIQ</a>
+  <a class="nav-item" href="../operatingiq/"><span class="nav-chip oper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>OperatingIQ</a>
+  <a class="nav-item active" href="#"><span class="nav-chip reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>ReplyIQ</a>
+
+  <div class="side-foot">
+    <a class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<div class="topbar">
+  <span class="tb-item" onclick="toast('Dark mode is a prototype stub')">🌙</span>
+  <span class="tb-badge">Internal</span>
+  <span class="tb-user"><span class="av">A</span>Hi, Admin</span>
+  <span class="tb-item">🌐 EN ▾</span>
+  <span class="tb-item">Admin</span>
+  <span class="tb-item">Sign out</span>
+</div>
+
+<main>
+  <div class="page-head">
+    <div>
+      <div class="page-title">Reviews &amp; Responses</div>
+      <div class="page-sub">Automated review response management</div>
+    </div>
+    <div class="head-actions">
+      <button class="btn" onclick="toast('Translate: prototype stub')">Translate → English ▾</button>
+      <button class="btn" onclick="toast('Settings: prototype stub')">Settings</button>
+      <button class="btn" onclick="toast('Response Rules: prototype stub')">Rules</button>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <div class="platforms" id="platforms"></div>
+    <div class="toggle-pair">
+      <button class="btn" data-post="notposted" onclick="setPostFilter('notposted',this)">Not Posted</button>
+      <button class="btn sel" data-post="all" onclick="setPostFilter('all',this)">All Reviews</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat a"><div class="stat-lbl">Total Reviews</div><div class="stat-num">26</div><div class="stat-sub">All reviews in the selected period</div></div>
+    <div class="stat b"><div class="stat-lbl">Avg Quality</div><div class="stat-num">96%</div><div class="stat-sub">Average quality score of responses</div></div>
+    <div class="stat c"><div class="stat-lbl">Auto Responses</div><div class="stat-num">6</div><div class="stat-sub">Responses generated automatically</div></div>
+  </div>
+
+  <div class="search-row">
+    <input class="search-in" id="search" placeholder="Search reviews…" oninput="render()">
+    <span class="mini-lbl">Rating</span>
+    <input class="mini-in" id="rmin" placeholder="Min" oninput="render()">
+    <span class="mini-lbl">-</span>
+    <input class="mini-in" id="rmax" placeholder="Max" oninput="render()">
+    <select class="sort-sel" id="sort" onchange="render()">
+      <option value="new">Newest First</option>
+      <option value="old">Oldest First</option>
+      <option value="low">Lowest Rated</option>
+      <option value="high">Highest Rated</option>
+    </select>
+  </div>
+
+  <div id="list"></div>
+  <div class="pager"><button disabled>← Previous</button><span>Page 1 of 2</span><button onclick="toast('Page 2: prototype stub')">Next →</button></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ICON = {
+  room:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  guest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>',
+  globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
+};
+
+const PLATFORMS = [
+  {key:'booking', name:'Booking.com'}, {key:'google', name:'Google'},
+  {key:'expedia', name:'Expedia'}, {key:'tripadvisor', name:'TripAdvisor'}
+];
+let platform = 'booking';
+let postFilter = 'all';
+
+// All fictional mock data — no real guest information.
+const REVIEWS = [
+  { name:'Isabelle Turner', country:'United Kingdom', room:'Deluxe Double or Twin Room', stay:'3 nights · August 2026', guest:'Couple', lang:'English',
+    date:'August 9, 2026', title:'Exceptional — we will absolutely return', rating:10.0, quality:96,
+    pos:'Stunning sea views from the balcony, spotless room and genuinely warm staff at reception.', neg:'',
+    response:'Dear Isabelle,\nThank you so much for the wonderful words — we are delighted the sea-view room and our team made your stay special. We would love to welcome you back on your next visit.\nWarm regards,\nMaya Fischer, Guest Relations Manager', posted:false },
+  { name:'Lukas Richter', country:'Germany', room:'Superior Room', stay:'2 nights · August 2026', guest:'Solo', lang:'English',
+    date:'August 7, 2026', title:'Great location, a few small things', rating:8.0, quality:94,
+    pos:'Perfect spot near the beach, comfortable bed and quick check-in.', neg:'The bathroom was a little small and the AC was noisy at night.',
+    response:'Dear Lukas,\nThank you for staying with us and for the balanced feedback. We are glad the location and comfort worked well, and I have shared your note on the AC with our maintenance team so we can put it right.\nBest wishes,\nMaya Fischer, Guest Relations Manager', posted:false },
+  { name:'Camille Nguyen', country:'France', room:'Deluxe Suite', stay:'4 nights · August 2026', guest:'Family', lang:'French',
+    date:'August 6, 2026', title:'Séjour agréable mais un peu bruyant', rating:7.0, quality:97,
+    pos:'Belle vue, personnel attentionné et petit-déjeuner varié.', neg:'Chambre un peu bruyante le soir à cause du bar de la piscine.',
+    response:'Chère Camille,\nMerci d\'avoir choisi notre hôtel et d\'avoir pris le temps de partager votre expérience. Ravie que la vue et le service vous aient plu ; je transmets votre remarque sur le bruit à notre équipe pour améliorer le confort en soirée.\nCordialement,\nMaya Fischer, Responsable relations clients', posted:false, translated:false,
+    translation:'Dear Camille,\nThank you for choosing our hotel and for taking the time to share your experience. Delighted that the view and service pleased you; I am passing your note about the noise to our team to improve evening comfort.\nKind regards,\nMaya Fischer, Guest Relations Manager' },
+  { name:'Luca Bianchi', country:'Italy', room:'Standard Double Room', stay:'1 night · August 2026', guest:'Couple', lang:'English',
+    date:'August 4, 2026', title:'Disappointing value for the price', rating:5.0, quality:0,
+    pos:'The staff at the front desk were friendly and helpful.', neg:'For what we paid the room felt tired, and there was a long wait to check in. The pool area was crowded and hard to get a lounger.',
+    response:'', posted:false },
+  { name:'Ewa Kowalski', country:'Poland', room:'Deluxe Double or Twin Room', stay:'2 nights · August 2026', guest:'Solo', lang:'English',
+    date:'August 3, 2026', title:'Clean, comfortable and quiet', rating:9.0, quality:0,
+    pos:'Immaculate room, very comfortable bed and a calm atmosphere. Great for a solo trip.', neg:'',
+    response:'', posted:false },
+  { name:'Michael Turner', country:'United States', room:'Family Room', stay:'3 nights · July 2026', guest:'Family', lang:'English',
+    date:'July 30, 2026', title:'Pool was closed with no warning', rating:4.0, quality:0,
+    pos:'Convenient location and the kids enjoyed the breakfast.', neg:'We booked partly for the pool, which was closed for maintenance the whole stay — no one told us in advance. That was really disappointing with two children.',
+    response:'', posted:false }
+];
+
+// A small pool of alternate AI responses used by "Generate" / "Regenerate"
+const GENERATED = {
+  4:['Dear Luca,\nThank you for your honest feedback and for the kind words about our front-desk team. I\'m sorry the room and the check-in wait fell short of the value you expected — we\'re reviewing both our room-refresh schedule and peak-time staffing, and I\'d welcome the chance to make your next stay right.\nSincerely,\nMaya Fischer, Guest Relations Manager',
+       'Dear Luca,\nI appreciate you taking the time to share this. It\'s disappointing to hear the room felt tired and that check-in took too long — that isn\'t the experience we want. I\'ve flagged both to the relevant teams and hope you\'ll give us another opportunity to show our best.\nWarm regards,\nMaya Fischer, Guest Relations Manager'],
+  5:['Dear Ewa,\nThank you for the lovely review — we\'re so pleased the room and the quiet atmosphere made for a great solo trip. We hope to welcome you back before long.\nWarm regards,\nMaya Fischer, Guest Relations Manager'],
+  6:['Dear Michael,\nI\'m truly sorry the pool was closed during your stay and that we didn\'t let you know in advance — with children that\'s especially frustrating, and you were right to expect better communication. I\'ve raised this with our operations team so guests are notified ahead of any closure. I hope you\'ll give us another chance to host your family properly.\nSincerely,\nMaya Fischer, Guest Relations Manager']
+};
+
+function rateClass(r){ return r>=8?'g':r>=6?'o':'r'; }
+function ringColor(q){ return q>=90?'var(--green)':q>=75?'var(--orange)':'var(--red)'; }
+
+function buildPlatforms(){
+  document.getElementById('platforms').innerHTML = PLATFORMS.map(p=>
+    `<button class="plat ${p.key===platform?'active':''}" onclick="setPlatform('${p.key}',this)">${p.name}</button>`).join('');
+}
+function setPlatform(k,el){ platform=k; document.querySelectorAll('.plat').forEach(x=>x.classList.remove('active')); el.classList.add('active'); toast(PLATFORMS.find(p=>p.key===k).name+' reviews'); }
+function setPostFilter(f,el){ postFilter=f; document.querySelectorAll('.toggle-pair .btn').forEach(x=>x.classList.remove('sel')); el.classList.add('sel'); render(); }
+
+function ring(q){
+  const c=2*Math.PI*18, off=c*(1-q/100);
+  return `<div class="ring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="var(--line)" stroke-width="4"/><circle cx="22" cy="22" r="18" fill="none" stroke="${ringColor(q)}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 22 22)"/></svg><div class="rt" style="color:${ringColor(q)}">${q}%</div></div>`;
+}
+
+function render(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const mn=parseFloat(document.getElementById('rmin').value); const mx=parseFloat(document.getElementById('rmax').value);
+  const sort=document.getElementById('sort').value;
+  let rows=REVIEWS.map((r,i)=>({...r,i})).filter(r=>{
+    if(postFilter==='notposted' && r.posted) return false;
+    if(q && !(r.name.toLowerCase().includes(q)||r.title.toLowerCase().includes(q)||(r.pos+r.neg).toLowerCase().includes(q))) return false;
+    if(!isNaN(mn) && r.rating<mn) return false;
+    if(!isNaN(mx) && r.rating>mx) return false;
+    return true;
+  });
+  if(sort==='low') rows.sort((a,b)=>a.rating-b.rating);
+  else if(sort==='high') rows.sort((a,b)=>b.rating-a.rating);
+  else if(sort==='old') rows.reverse();
+
+  document.getElementById('list').innerHTML = rows.map(r=>{
+    const hasResp = !!r.response;
+    const posLine = r.pos?`<div class="r-line pos"><span class="s">+</span><span>${r.pos}</span></div>`:'';
+    const negLine = r.neg?`<div class="r-line neg"><span class="s">–</span><span>${r.neg}</span></div>`:'';
+    let respBlock;
+    if(hasResp){
+      const showTr = r.translation ? `<button class="link" onclick="toggleTr(${r.i})">${r.translated?'Show Original':'Show Translation'}</button>` : '';
+      const text = (r.translated && r.translation) ? r.translation : r.response;
+      respBlock = `<div class="resp">
+        <div class="resp-head">
+          <div class="lhs"><span class="resp-lbl">Response</span><span class="sug">Suggested</span></div>
+          <button class="link" onclick="copyResp(${r.i})">${ICON.copy} Copy</button>
+        </div>
+        <div class="resp-text" id="rt-${r.i}">${text}</div>
+        <div class="resp-actions">
+          <button class="btn-post ${r.posted?'done':''}" onclick="togglePost(${r.i},this)">${ICON.check} ${r.posted?'Posted':'Mark as Posted'}</button>
+          ${showTr}
+          <button class="act" onclick="toast('Edit: prototype stub')">Edit</button>
+          <button class="act" onclick="toast('Delete: prototype stub')">Delete</button>
+          <button class="act" onclick="toast('Refine: prototype stub')">Refine</button>
+          <button class="act" onclick="toast('Feedback: prototype stub')">Feedback</button>
+          <button class="act" onclick="toast('Marked as example ✓')">☆ Mark as example</button>
+        </div>
+        <button class="btn-regen" onclick="regen(${r.i},this)">${ICON.refresh} Regenerate</button>
+      </div>`;
+    } else {
+      respBlock = `<div class="resp">
+        <div class="resp-lbl" style="margin-bottom:8px">Response</div>
+        <div class="no-resp">No response yet</div>
+        <button class="btn-regen" onclick="genResp(${r.i},this)">✨ Generate Response</button>
+      </div>`;
+    }
+    return `<div class="rev">
+      <div class="rev-top">
+        <div class="rev-meta">
+          <div class="r-name">${r.name}</div>
+          <div class="r-country">${r.country}</div>
+          <div class="r-attr">${ICON.room}<span>${r.room}</span></div>
+          <div class="r-attr">${ICON.cal}<span>${r.stay}</span></div>
+          <div class="r-attr">${ICON.guest}<span>${r.guest}</span></div>
+          <span class="r-lang">${ICON.globe} ${r.lang}</span>
+        </div>
+        <div class="rev-body">
+          <div class="r-date">Reviewed: ${r.date}</div>
+          <div class="r-title">${r.title}</div>
+          ${posLine}${negLine}
+        </div>
+        <div class="rev-score">
+          ${r.quality?ring(r.quality):''}
+          <div class="rate ${rateClass(r.rating)}">${r.rating.toFixed(1)}</div>
+        </div>
+      </div>
+      ${respBlock}
+    </div>`;
+  }).join('') || `<div style="text-align:center;color:var(--muted);padding:50px;font-size:14px;">No reviews match your filters.</div>`;
+}
+
+function togglePost(i,el){ REVIEWS[i].posted=!REVIEWS[i].posted; render(); if(REVIEWS[i].posted) toast('Marked as posted ✓'); }
+function toggleTr(i){ REVIEWS[i].translated=!REVIEWS[i].translated; render(); }
+function copyResp(i){ const t=REVIEWS[i].translated&&REVIEWS[i].translation?REVIEWS[i].translation:REVIEWS[i].response; navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{}); toast('Response copied ✓'); }
+function genResp(i,el){
+  el.classList.add('spinning'); el.innerHTML=`<span class="spin" style="display:inline-block">${ICON.refresh}</span> Generating…`;
+  setTimeout(()=>{ REVIEWS[i].response = (GENERATED[i+1]||['Thank you for your review.'])[0]; REVIEWS[i].quality = 92+Math.round((i%3)); render(); toast('Response generated ✓'); }, 850);
+}
+let regenIdx={};
+function regen(i,el){
+  const pool=GENERATED[i+1]; if(!pool||pool.length<2){ toast('Regenerated ✓'); const el2=document.getElementById('rt-'+i); return; }
+  el.classList.add('spinning'); el.innerHTML=`<span class="spin" style="display:inline-block">${ICON.refresh}</span> Regenerating…`;
+  setTimeout(()=>{ regenIdx[i]=((regenIdx[i]||0)+1)%pool.length; REVIEWS[i].response=pool[regenIdx[i]]; render(); toast('Response regenerated ✓'); }, 800);
+}
+
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1800); }
+
+buildPlatforms();
+render();
+</script>
+</body>
+</html>

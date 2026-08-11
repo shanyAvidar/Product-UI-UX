@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meridian Hotels — Chain Portfolio | RatingIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold:         #C9A86A;
+    --gold-light:   #D4B87A;
+    --gold-dark:    #A88B52;
+    --background:   #FAF9F7;
+    --foreground:   #1C2A39;
+    --text-secondary: #2E4050;
+    --text-tertiary:  #516B84;
+    --muted:        #6B7A8A;
+    --navy-1:       #FAF9F7;
+    --navy-2:       #ECE8E2;
+    --navy-3:       #E2DED8;
+    --navy-4:       #F2EFEB;
+    --glass-bg:     rgba(255,255,255,0.94);
+    --glass-border: rgba(0,0,0,0.06);
+    --subtle-border: rgba(0,0,0,0.05);
+    --success:      #3a7a55;
+    --warn:         #B87A30;
+    --warn-faint:   #fef3e2;
+    --danger:       #B04040;
+    --danger-faint: #fce8e8;
+    --card-shadow:  0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+
+    --sidebar-w:         64px;
+    --sidebar-open-w:    240px;
+    --topbar-h:          56px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--topbar-h);
+    background: transparent;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 24px; z-index: 100; gap: 16px;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+  .topbar-user-info { display: flex; align-items: center; gap: 8px; }
+  .topbar-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--text-tertiary), var(--text-secondary));
+    color: white; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-greeting { font-size: 13px; font-weight: 600; color: var(--foreground); }
+  .topbar-badge {
+    font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px;
+    background: var(--navy-2); color: var(--muted); border: 1px solid var(--glass-border);
+  }
+  .topbar-signout {
+    font-size: 12px; color: var(--muted); text-decoration: none; font-weight: 400;
+    transition: color 0.15s;
+  }
+  .topbar-signout:hover { color: var(--foreground); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: #fff;
+    border-right: 1px solid rgba(0,0,0,0.07);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 14px 0 20px;
+    z-index: 110;
+    overflow: hidden;
+    transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.sidebar-open .sidebar { width: var(--sidebar-open-w); }
+  body.sidebar-open .layout  { margin-left: var(--sidebar-open-w); transition: margin-left 0.26s cubic-bezier(0.4,0,0.2,1); }
+  .layout { transition: margin-left 0.26s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Hamburger */
+  .sidebar-toggle {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: none; border: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: flex-start;
+    justify-content: center; gap: 4.5px;
+    padding: 0 8px; margin-bottom: 16px; flex-shrink: 0;
+    align-self: flex-start; margin-left: 14px;
+  }
+  .sidebar-toggle:hover .hb-line { opacity: 0.7; }
+  .hb-line { height: 1.8px; border-radius: 2px; background: var(--muted); opacity: 0.7; transition: width 0.2s; }
+  .hb-line-1 { width: 18px; }
+  .hb-line-2 { width: 13px; }
+  .hb-line-3 { width: 18px; }
+
+  /* Logo row */
+  .sidebar-logo-row {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 0 13px; margin-bottom: 18px; flex-shrink: 0; overflow: hidden;
+  }
+  .sidebar-logo-mark {
+    width: 30px; height: 30px; border-radius: 7px; flex-shrink: 0;
+    background: var(--foreground);
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none; overflow: hidden;
+  }
+  .sidebar-logo-text {
+    opacity: 0; transition: opacity 0.18s 0.06s;
+    pointer-events: none; flex-shrink: 0;
+  }
+  body.sidebar-open .sidebar-logo-text { opacity: 1; pointer-events: auto; }
+
+  /* Chain name chip */
+  .sidebar-chain {
+    width: 100%; padding: 0 13px 14px; flex-shrink: 0; overflow: hidden;
+  }
+  .sidebar-chain-inner {
+    background: var(--navy-4); border: 1px solid var(--glass-border);
+    border-radius: 10px; padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px;
+    opacity: 0; transition: opacity 0.18s;
+    white-space: nowrap; overflow: hidden;
+  }
+  body.sidebar-open .sidebar-chain-inner { opacity: 1; }
+  .sidebar-chain-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: rgba(201,168,106,0.18); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: var(--gold-dark);
+  }
+  .sidebar-chain-icon svg { width: 19px; height: 19px; }
+  .sidebar-chain-name { font-size: 16px; font-weight: 700; color: var(--foreground); overflow: hidden; text-overflow: ellipsis; }
+
+  /* Divider */
+  .sidebar-divider {
+    width: 36px; height: 1px; background: rgba(0,0,0,0.07);
+    margin: 6px 0; flex-shrink: 0; transition: width 0.26s;
+  }
+  body.sidebar-open .sidebar-divider { width: calc(100% - 26px); }
+
+  /* Nav group */
+  .sidebar-nav {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2px; width: 100%; padding: 0 11px;
+  }
+  .sidebar-group-label {
+    width: 100%; font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted);
+    padding: 10px 4px 4px; white-space: nowrap;
+    opacity: 0; transition: opacity 0.15s; pointer-events: none;
+  }
+  body.sidebar-open .sidebar-group-label { opacity: 0.7; }
+
+  .sidebar-nav-item {
+    width: 46px; height: 46px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: flex-start;
+    padding: 0 12px;
+    cursor: pointer; border: none; background: transparent;
+    color: var(--text-tertiary); transition: background 0.15s, color 0.15s, width 0.26s cubic-bezier(0.4,0,0.2,1);
+    position: relative; text-decoration: none; flex-shrink: 0;
+    overflow: hidden; white-space: nowrap;
+  }
+  body.sidebar-open .sidebar-nav-item { width: 100%; }
+  .sidebar-nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text-secondary); }
+  .sidebar-nav-item.active { background: rgba(0,0,0,0.06); color: var(--foreground); }
+  .sidebar-nav-item.active:hover { background: rgba(0,0,0,0.08); }
+  .sidebar-nav-item svg { width: 21px; height: 21px; stroke-width: 2.2; flex-shrink: 0; }
+  .sni-chip { width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .sni-chip svg { width: 18px; height: 18px; stroke-width: 2; }
+  .sni-chip.guest { background: rgba(59,130,246,0.14); color: #3B82F6; }
+  .sni-chip.oper { background: rgba(201,168,106,0.18); color: var(--gold-dark); }
+  .sni-chip.reply { background: rgba(58,122,85,0.14); color: var(--success); }
+  .sni-label {
+    font-size: 14px; font-weight: 600; margin-left: 10px;
+    opacity: 0; transition: opacity 0.15s 0.08s;
+    pointer-events: none; overflow: hidden;
+  }
+  .sidebar-nav-item.active .sni-label { font-weight: 600; color: var(--foreground); }
+  body.sidebar-open .sni-label { opacity: 1; pointer-events: auto; }
+
+  /* Tooltip (collapsed only) */
+  .sidebar-nav-item::after {
+    content: attr(data-tip);
+    position: absolute; left: calc(100% + 10px); top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    background: var(--foreground); color: white;
+    font-size: 11.5px; font-weight: 600; font-family: 'Inter', sans-serif;
+    padding: 5px 10px; border-radius: 7px; white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.15s, transform 0.15s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.14); z-index: 200;
+  }
+  .sidebar-nav-item:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+  body.sidebar-open .sidebar-nav-item::after { display: none; }
+
+  /* ── MAIN LAYOUT ── */
+  .layout {
+    margin-top: var(--topbar-h);
+    margin-left: var(--sidebar-w);
+    min-height: calc(100vh - var(--topbar-h));
+  }
+  .layout-inner {
+    padding: 36px 40px 80px;
+  }
+
+  /* ────────────────────────────────────────────────────────
+     PAGE CONTENT
+  ──────────────────────────────────────────────────────── */
+  .page-content { width: 100%; }
+
+
+  /* ────────────────────────────────────────────────────────
+     SECTION 1 — CHAIN HEADER + CARDS
+  ──────────────────────────────────────────────────────── */
+
+  .chain-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 32px; }
+  .chain-name { font-size: 28px; font-weight: 800; color: var(--foreground); letter-spacing: -0.5px; }
+  .chain-sub { font-size: 13px; color: var(--muted); }
+
+  /* Shared card base */
+  .kpi-card {
+    background: white; border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 24px 28px; box-shadow: var(--card-shadow);
+  }
+  .kpi-widget-label {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px;
+  }
+
+  /* Top row: 2 equal large cards */
+  .kpi-top-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px; margin-bottom: 16px;
+  }
+
+  /* Card 1: Chain Score */
+  .score-card { cursor: pointer; transition: background .15s; }
+  .score-card:hover { background: var(--navy-4); }
+  .score-num {
+    font-size: 80px; font-weight: 800; line-height: 1;
+    color: var(--foreground); letter-spacing: -4px; margin-bottom: 6px;
+  }
+  .score-platform {
+    font-size: 14px; color: var(--muted); margin-bottom: 20px;
+  }
+  .score-expand-hint {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text-tertiary); margin-top: 14px;
+    opacity: 0; transition: opacity .2s;
+  }
+  .score-card:hover .score-expand-hint { opacity: 1; }
+
+  /* Monthly chart modal */
+  .monthly-modal-box {
+    background: white; border-radius: 20px;
+    padding: 32px 36px; width: 820px; max-width: 96vw;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    animation: modalIn .2s ease;
+  }
+  .monthly-modal-title {
+    font-size: 14px; font-weight: 700; color: var(--foreground);
+    margin-bottom: 28px; line-height: 1.4;
+  }
+  .chart-wrap { position: relative; }
+  .chart-month-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 8px; padding: 0 1px;
+  }
+  .chart-month-label { font-size: 10px; color: var(--muted); }
+  .chart-tooltip {
+    position: absolute; pointer-events: none;
+    background: var(--foreground); color: white;
+    font-size: 12px; font-weight: 600;
+    padding: 6px 10px; border-radius: 8px;
+    white-space: nowrap; opacity: 0;
+    transition: opacity .12s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    transform: translate(-50%, -100%);
+    margin-top: -8px;
+  }
+  .chart-tooltip.show { opacity: 1; }
+
+  /* Card 2: Portfolio Leaders */
+  .leaders-card { cursor: default; }
+
+  /* Streak Leader card */
+  .streak-card { cursor: pointer; transition: background .15s; position: relative; }
+  .streak-card:hover { background: var(--navy-4); }
+  .streak-days { font-size: 72px; font-weight: 800; line-height: 1; color: var(--gold); letter-spacing: -3px; margin-bottom: 6px; }
+  .streak-unit { font-size: 20px; font-weight: 600; color: var(--gold-dark); letter-spacing: 0; }
+  .streak-hotel { font-size: 16px; font-weight: 700; color: var(--foreground); margin-bottom: 14px; }
+  .streak-more { font-size: 13px; color: var(--muted); }
+  .streak-hint { position: absolute; bottom: 32px; right: 36px; font-size: 12px; font-weight: 600; color: var(--text-tertiary); opacity: 0; transition: opacity .2s; }
+  .streak-card:hover .streak-hint { opacity: 1; }
+  .leaders-hotel-name {
+    font-size: 26px; font-weight: 800; color: var(--foreground);
+    line-height: 1.2; letter-spacing: -0.4px; margin-bottom: 10px;
+  }
+  .leaders-rating {
+    font-size: 72px; font-weight: 800; line-height: 1;
+    color: var(--success); letter-spacing: -3px; margin-bottom: 16px;
+  }
+  .leaders-more { font-size: 13px; color: var(--muted); }
+
+  /* Bottom: full-width Rating Spread */
+  /* Alert cards (inside kpi-top-row) */
+  .kpi-card.alert-card-wrap {
+    display: flex; flex-direction: column;
+  }
+  .alert-hotel-name {
+    font-size: 28px; font-weight: 800; color: var(--foreground);
+    line-height: 1.15; margin-bottom: 22px;
+  }
+  .alert-top-row {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 22px;
+  }
+  .alert-platform-icon { flex-shrink: 0; }
+  .alert-delta {
+    font-size: 60px; font-weight: 800; letter-spacing: -3px; line-height: 1;
+  }
+  .alert-delta.drop { color: #C0392B; }
+  .alert-delta.climb { color: #2E7D54; }
+  .alert-bottom-row {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
+    margin-top: auto;
+  }
+  .alert-ratings { display: flex; gap: 24px; align-items: flex-end; }
+  .alert-rating-item { display: flex; flex-direction: column; gap: 3px; }
+  .alert-rating-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+  .alert-rating-val { font-size: 36px; font-weight: 800; color: var(--foreground); letter-spacing: -1.5px; line-height: 1; display: inline-flex; align-items: baseline; }
+  @keyframes alert-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,106,0.5); }
+    55%       { box-shadow: 0 0 0 7px rgba(201,168,106,0); }
+  }
+  .alert-cta-link {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 10px 14px; border-radius: 12px; text-decoration: none; flex-shrink: 0;
+    border: 1.5px solid rgba(201,168,106,0.55); color: var(--foreground);
+    background: rgba(201,168,106,0.07);
+    font-size: 12px; font-weight: 700; line-height: 1.5; text-align: center;
+    animation: alert-pulse 2.4s ease-in-out infinite;
+  }
+  .alert-cta-link:hover { animation: none; background: rgba(201,168,106,0.15); border-color: rgba(201,168,106,0.85); box-shadow: none; }
+
+  .spread-card {
+    background: white; border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 24px 28px; box-shadow: var(--card-shadow);
+    margin-bottom: 32px;
+  }
+  .spread-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 30px;
+  }
+  .spread-hint-text { font-size: 12px; color: var(--muted); font-style: italic; }
+
+  .spread-tiers { display: flex; flex-direction: column; gap: 2px; }
+
+  .spread-row {
+    display: grid; grid-template-columns: 52px 1fr 64px 20px;
+    align-items: center; gap: 16px;
+    padding: 9px 12px; border-radius: 10px; margin: 0 -12px;
+    cursor: pointer; transition: background .15s;
+  }
+  .spread-row:hover { background: rgba(0,0,0,0.032); }
+  .spread-row-label { font-size: 17px; font-weight: 700; }
+  .spread-col-header {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted);
+  }
+
+  .spread-bar-track {
+    height: 22px; background: var(--navy-2); border-radius: 5px; overflow: hidden;
+  }
+  .spread-bar-fill {
+    height: 100%; border-radius: 5px;
+    transition: filter .15s;
+  }
+  .spread-row:hover .spread-bar-fill { filter: brightness(0.91); }
+
+  .spread-meta { text-align: right; }
+  .spread-count-big { font-size: 22px; font-weight: 800; line-height: 1; }
+  .spread-count-pct { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* Monthly Review Inflow */
+  .inflow-card {
+    background: var(--navy-4); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 24px 28px; box-shadow: var(--card-shadow);
+    margin-bottom: 32px;
+  }
+  .inflow-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px; gap: 16px; flex-wrap: wrap;
+  }
+  .inflow-title {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted); margin-bottom: 3px;
+  }
+  .inflow-sub { font-size: 12px; color: var(--muted); }
+
+  /* Tab switcher */
+  .ra-tabs {
+    display: flex; gap: 2px; padding: 4px;
+    background: var(--navy-3); border-radius: 10px;
+  }
+  .ra-tab {
+    padding: 5px 14px; border-radius: 7px; border: none; background: none;
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s;
+  }
+  .ra-tab.active {
+    background: white; color: var(--foreground);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .ra-tab:hover:not(.active) { color: var(--foreground); }
+
+  /* Review averages table */
+  .ra-divider { border: none; border-top: 1px solid var(--glass-border); margin: 24px 0; }
+  .ra-table-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .ra-table-title { font-size: 13px; font-weight: 700; color: var(--foreground); }
+  .ra-table-sub { font-size: 12px; color: var(--muted); }
+
+  .ra-table { width: 100%; border-collapse: collapse; }
+  .ra-table thead th {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted);
+    padding: 0 0 10px; text-align: left; border-bottom: 1px solid var(--glass-border);
+  }
+  .ra-table thead th.r { text-align: right; }
+  .ra-table thead th.c { text-align: center; }
+  .ra-table tbody tr {
+    border-bottom: 1px solid var(--subtle-border);
+    transition: background .12s;
+  }
+  .ra-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+  .ra-table tbody tr:last-child { border-bottom: none; }
+  .ra-table tbody td { padding: 11px 0; font-size: 13px; color: var(--foreground); }
+  .ra-num { color: var(--muted); font-size: 11px; font-weight: 600; width: 32px; }
+  .ra-hotel { font-weight: 500; }
+  .ra-score { text-align: right; font-weight: 600; color: var(--text-secondary); }
+  .ra-avg { text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .ra-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .ra-dot.green  { background: var(--success); }
+  .ra-dot.orange { background: var(--warn); }
+  .ra-dot.red    { background: var(--danger); }
+  .ra-avg-val { font-weight: 700; }
+  .ra-reviews { text-align: right; color: var(--muted); font-size: 12px; }
+  .inflow-chart-wrap { position: relative; }
+  .inflow-dot-hit { cursor: default; }
+
+  /* Per-property mini charts */
+  .prop-charts-section { margin-top: 28px; border-top: 1px solid var(--navy-2); padding-top: 20px; margin-bottom: 8px; }
+  .prop-charts-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; }
+  .prop-chart-row { border: 1px solid var(--navy-2); border-radius: 11px; overflow: hidden; margin-bottom: 8px; background: var(--glass-bg); }
+  .prop-chart-hdr { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; cursor: pointer; transition: background .15s; }
+  .prop-chart-hdr:hover { background: var(--navy-4); }
+  .prop-chart-hdr.open { border-bottom: 1px solid var(--navy-2); }
+  .prop-chart-name { font-size: 14px; font-weight: 700; color: var(--foreground); }
+  .prop-chart-meta { font-size: 12px; color: var(--muted); margin-left: 12px; }
+  .prop-chart-chevron { font-size: 16px; color: var(--muted); transition: transform .22s; line-height: 1; }
+  .prop-chart-hdr.open .prop-chart-chevron { transform: rotate(180deg); }
+  .prop-chart-body { display: none; padding: 16px 18px 12px; }
+  .prop-chart-body.open { display: block; }
+  .prop-chart-wrap { position: relative; }
+  .prop-chart-tip { position:absolute; pointer-events:none; background:var(--foreground); color:white; font-size:12px; font-weight:600; padding:6px 11px; border-radius:8px; white-space:nowrap; opacity:0; transition:opacity .12s; box-shadow:0 4px 12px rgba(0,0,0,0.25); transform:translate(-50%,-100%); margin-top:-10px; }
+  .inflow-tooltip {
+    position: absolute; pointer-events: none;
+    background: var(--navy-4); color: var(--foreground);
+    border: 1px solid var(--glass-border);
+    font-size: 12px; line-height: 1.65;
+    padding: 8px 12px; border-radius: 9px;
+    white-space: nowrap; opacity: 0;
+    transition: opacity .12s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    transform: translate(-50%, -100%); margin-top: -10px;
+  }
+  .inflow-tooltip.show { opacity: 1; }
+  .inflow-tooltip strong { display: block; margin-bottom: 2px; font-size: 11px; color: var(--muted); font-weight: 600; }
+
+  /* ── HOTEL PORTFOLIO ── */
+  .portfolio-card {
+    background: white; border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 24px 28px; box-shadow: var(--card-shadow);
+    margin-bottom: 32px;
+  }
+  .portfolio-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 18px; gap: 12px; flex-wrap: wrap;
+  }
+  .portfolio-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 2px; }
+  .portfolio-sub { font-size: 12px; color: var(--muted); }
+  .hotel-search {
+    padding: 8px 14px; border: 1px solid var(--glass-border); border-radius: 10px;
+    font-size: 13px; font-family: 'Inter', sans-serif; color: var(--foreground);
+    background: var(--navy-4); outline: none; width: 220px; transition: border-color .15s;
+  }
+  .hotel-search:focus { border-color: rgba(201,168,106,0.45); }
+  .hotel-search::placeholder { color: var(--muted); }
+  /* ── PORTFOLIO TABLE ── */
+  .pt-table { width: 100%; border-collapse: collapse; }
+  .pt-table thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding: 0 10px 13px; text-align: right; border-bottom: 1px solid var(--navy-2); white-space: nowrap; }
+  .pt-table thead th:first-child { text-align: left; padding-left: 0; }
+  .pt-table thead th.pt-th-name { text-align: left; }
+  .pt-table thead th.pt-sortable { cursor: pointer; user-select: none; transition: color .12s; }
+  .pt-table thead th.pt-sortable:hover { color: var(--foreground); }
+  .pt-sort-arrow { display: inline-block; margin-left: 5px; font-size: 10px; opacity: .3; }
+  .pt-sort-arrow.active { opacity: 1; color: var(--gold); }
+  .pt-table tbody tr { border-bottom: 1px solid var(--navy-3); transition: background .12s; }
+  .pt-table tbody tr:last-child { border-bottom: none; }
+  .pt-table tbody tr:hover:not(.pt-locked) { background: var(--navy-4); }
+  .pt-table tbody td { padding: 13px 10px; vertical-align: top; font-size: 15px; color: var(--foreground); }
+  .pt-table tbody td:first-child { padding-left: 0; }
+  .pt-name-cell { display: flex; align-items: center; gap: 9px; }
+  .pt-name-text { font-weight: 600; font-size: 15px; }
+  .pt-rating { font-weight: 700; font-size: 15px; text-align: right; }
+  .pt-city-rank { font-size: 13px; font-weight: 700; color: var(--muted); display: block; margin-top: 3px; }
+  .pt-dash { color: var(--muted); opacity: 0.4; text-align: right; }
+  .pt-action-cell { text-align: right; white-space: nowrap; }
+  .pt-pill-link { display: inline-block; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; text-decoration: none; border: 1px solid var(--navy-2); color: var(--text-secondary); transition: border-color .15s, color .15s, background .15s; margin-left: 6px; }
+  .pt-pill-link:first-child { margin-left: 0; }
+  .pt-row-link { cursor: pointer; }
+  .pt-row-link:hover .pt-name-link { color: var(--gold-dark); text-decoration: underline; text-underline-offset: 2px; }
+  .pt-name-link { color: var(--foreground); transition: color .15s; }
+  .pt-pill-link:hover { border-color: var(--gold); color: var(--foreground); background: rgba(201,168,106,0.06); }
+  .pt-boost-btn { font-size: 12px; font-weight: 700; color: var(--gold-dark); background: rgba(201,168,106,0.08); border: 1px solid rgba(201,168,106,0.3); border-radius: 7px; padding: 6px 12px; cursor: pointer; white-space: nowrap; transition: background .15s; }
+  .pt-boost-btn:hover { background: rgba(201,168,106,0.16); }
+  .pt-locked-name { color: var(--muted); font-weight: 600; opacity: 0.65; }
+  .pt-locked td { opacity: 0.55; }
+  .pt-locked .pt-action-cell { opacity: 1; }
+  .plat-icon-sm { display: inline-flex; flex-shrink: 0; }
+
+  .hotel-mini-card {
+    border: 1px solid var(--glass-border); border-radius: 10px;
+    padding: 11px 13px; display: flex; align-items: center;
+    justify-content: space-between; gap: 8px; cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, transform .12s;
+    background: var(--navy-4);
+  }
+  .hotel-mini-card:hover { border-color: rgba(0,0,0,0.14); box-shadow: 0 2px 8px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .hotel-mini-card.is-locked { background: white; opacity: 0.72; }
+  .hotel-mini-left { display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden; }
+  .hotel-mini-icon { flex-shrink: 0; color: var(--muted); opacity: 0.5; }
+  .hotel-mini-name { font-size: 12px; font-weight: 600; color: var(--foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hotel-mini-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .hotel-mini-rating { font-size: 14px; font-weight: 800; }
+  .hotel-mini-lock { font-size: 10px; opacity: 0.55; }
+  .no-results-msg { text-align: center; padding: 28px; color: var(--muted); font-size: 13px; display: none; }
+
+  /* Hotel detail modal */
+  .hotel-modal-box {
+    background: white; border-radius: 20px; padding: 28px 32px;
+    width: 460px; max-width: 92vw; box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    animation: modalIn .2s ease; overflow: hidden;
+    flex-shrink: 0; box-sizing: border-box;
+  }
+  .hotel-modal-name { font-size: 17px; font-weight: 800; color: var(--foreground); line-height: 1.2; }
+  .hotel-modal-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; min-width: 0; width: 100%; }
+  .hotel-modal-stat { background: var(--navy-4); border-radius: 12px; padding: 14px 16px; }
+  .hotel-modal-stat-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+  .hotel-modal-stat-num { font-size: 30px; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+  .hotel-modal-stat-sub { font-size: 11.5px; color: var(--muted); }
+  /* Delta row */
+  .hotel-modal-delta {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 0; border-top: 1px solid var(--subtle-border); margin-bottom: 16px;
+  }
+  .delta-label { font-size: 12px; color: var(--muted); flex: 1; }
+  .delta-value { font-size: 16px; font-weight: 800; }
+  .delta-value.neg { color: var(--danger); }
+  .delta-value.pos { color: var(--success); }
+  /* People Leaderboard — one widget per hotel */
+  .pl-hotel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .pl-widget { border: 1px solid var(--navy-2); border-radius: 16px; background: white; overflow: hidden; display: flex; flex-direction: column; }
+  .pl-widget-hdr { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--navy-3); background: var(--navy-4); }
+  .pl-widget-name { font-size: 14px; font-weight: 800; color: var(--foreground); flex: 1; letter-spacing: -0.2px; }
+  .pl-widget-count { font-size: 12px; font-weight: 700; color: var(--muted); background: white; border: 1px solid var(--navy-2); border-radius: 20px; padding: 2px 10px; flex-shrink: 0; }
+  .pl-widget-body { padding: 6px 8px; }
+  .pl-member { display: flex; align-items: center; gap: 11px; padding: 9px 8px; border-radius: 10px; cursor: pointer; transition: background .12s; }
+  .pl-member:hover { background: var(--navy-4); }
+  .pl-member-rank { font-size: 13px; font-weight: 800; color: var(--muted); width: 18px; text-align: center; flex-shrink: 0; }
+  .pl-member:first-child .pl-member-rank { color: var(--gold-dark); }
+  .pl-avatar-sm { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-light), var(--gold-dark)); color: white; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: .5px; }
+  .pl-member-info { flex: 1; min-width: 0; }
+  .pl-member-name { font-size: 14.5px; font-weight: 700; color: var(--foreground); line-height: 1.2; }
+  .pl-member-role { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .pl-member-rating { font-size: 18px; font-weight: 800; flex-shrink: 0; line-height: 1; min-width: 76px; text-align: right; }
+  .pl-slash { font-size: 11px; font-weight: 600; color: var(--muted); }
+  .pl-col-hdr { display: flex; align-items: center; gap: 11px; padding: 14px 8px 8px; }
+  .pl-col-hdr-spacer { width: 67px; flex-shrink: 0; }
+  .pl-col-hdr-name { flex: 1; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .pl-col-hdr-rating { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); flex-shrink: 0; min-width: 76px; text-align: right; }
+  .pl-equator { display: flex; align-items: center; gap: 10px; padding: 6px 8px 8px; }
+  .pl-equator-line { flex: 1; height: 1px; background: repeating-linear-gradient(90deg, var(--text-tertiary) 0 5px, transparent 5px 9px); opacity: 0.5; }
+  .pl-equator-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
+  .pl-member-rating.pl-above::after { content: '▲'; font-size: 9px; margin-left: 4px; vertical-align: middle; }
+  .pl-member-rating.pl-below::after { content: '▼'; font-size: 9px; margin-left: 4px; vertical-align: middle; }
+  /* Chain Comparison */
+  .cc-card { background: white; border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px 28px; box-shadow: var(--card-shadow); margin-bottom: 32px; }
+  .cc-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .cc-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+  .cc-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .cc-legend-line { width: 18px; height: 2px; flex-shrink: 0; }
+
+  .cc-table { width: 100%; border-collapse: collapse; }
+  .cc-table thead th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 0 0 10px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+  .cc-table thead th.r { text-align: right; }
+  .cc-table tbody tr { border-bottom: 1px solid var(--subtle-border); transition: background .12s; cursor: pointer; }
+  .cc-table tbody tr:last-child { border-bottom: none; }
+  .cc-table tbody tr:hover:not(.cc-self) { background: rgba(0,0,0,0.02); }
+  .cc-table tbody tr.cc-self { background: rgba(201,168,106,0.05); cursor: default; }
+  .cc-table tbody td { padding: 10px 0; font-size: 13px; color: var(--foreground); }
+  .cc-rank { font-size: 11px; font-weight: 600; color: var(--muted); width: 32px; }
+  .cc-name { font-weight: 500; }
+  .cc-self .cc-name { font-weight: 700; color: var(--gold-dark); }
+  .cc-hotels { text-align: right; color: var(--muted); font-size: 12px; }
+  .cc-score { text-align: right; font-weight: 700; }
+  .cc-mom { text-align: right; font-size: 12px; font-weight: 600; }
+  .cc-mom.pos { color: var(--success); }
+  .cc-mom.neg { color: var(--danger); }
+  .cc-mom.flat { color: var(--muted); }
+  .cc-toggle { width: 28px; text-align: right; }
+  .cc-add-btn { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--glass-border); background: none; color: var(--muted); font-size: 14px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all .15s; font-family: inherit; }
+  .cc-add-btn:hover { border-color: var(--text-tertiary); color: var(--text-tertiary); }
+  .cc-add-btn.active { border: none; background: none; }
+  .cc-add-btn.maxed { opacity: 0.3; cursor: not-allowed; }
+  .cc-you-badge { font-size: 10px; font-weight: 700; color: var(--gold-dark); background: rgba(201,168,106,0.12); border-radius: 20px; padding: 2px 7px; }
+  .cc-cap-note { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 10px; display: none; }
+  .cc-cap-note.show { display: block; }
+
+  .tip-icon { display: inline-flex; align-items: center; justify-content: center; color: var(--muted); cursor: default; flex-shrink: 0; transition: color 0.15s; vertical-align: middle; margin-left: 5px; }
+  .tip-icon:hover { color: var(--foreground); }
+  .tip-icon svg { display: block; }
+  .tip-wrap { position: relative; display: inline-flex; align-items: center; }
+  .tip-box { position: absolute; z-index: 700; background: white; border: 1px solid var(--glass-border); border-radius: 10px; padding: 11px 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); width: 240px; pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity 0.18s, transform 0.18s; text-transform: none; letter-spacing: normal; font-style: normal; font-weight: 400; }
+  .tip-box.tip-above { bottom: calc(100% + 8px); }
+  .tip-box.tip-left  { right: 0; }
+  .tip-wrap:hover .tip-box { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .tip-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 6px; }
+  .tip-body  { font-size: 12px; font-weight: 400; color: var(--text-secondary); line-height: 1.6; }
+
+  /* Platform ratings section */
+  .plat-section { padding: 16px 0 4px; border-top: 1px solid var(--subtle-border); margin-top: 4px; margin-bottom: 16px; }
+  .plat-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+  .plat-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .plat-subtitle { font-size: 11px; color: var(--muted); }
+  .plat-grid { display: grid; grid-template-columns: 1fr 72px 72px 52px; gap: 0; }
+  .plat-col-hdr { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); text-align: right; padding-bottom: 10px; border-bottom: 1px solid var(--glass-border); }
+  .plat-col-hdr:first-child { text-align: left; }
+  .plat-row { display: contents; }
+  .plat-row > * { padding: 10px 0; border-bottom: 1px solid var(--subtle-border); display: flex; align-items: center; }
+  .plat-row:last-child > * { border-bottom: none; }
+  .plat-id { gap: 8px; }
+  .plat-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .plat-name { font-size: 13px; font-weight: 500; color: var(--foreground); }
+  .plat-val { font-size: 18px; font-weight: 800; color: var(--foreground); justify-content: flex-end; }
+  .plat-val .plat-scale { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .plat-val.flagged { color: var(--muted); font-weight: 600; font-size: 16px; }
+  .plat-delta { font-size: 13px; font-weight: 700; justify-content: flex-end; }
+  .plat-delta.up { color: var(--success); }
+  .plat-delta.dn { color: var(--danger); }
+
+  .hotel-modal-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+  .hotel-modal-link { justify-content: center; }
+  .hotel-modal-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 12px; border: 1px solid var(--glass-border); border-radius: 8px;
+    font-size: 12px; font-weight: 600; color: var(--text-tertiary);
+    text-decoration: none; background: var(--navy-4); transition: all .15s; cursor: pointer;
+  }
+  .hotel-modal-link:hover { border-color: rgba(0,0,0,0.15); color: var(--foreground); }
+
+  /* Locked modal */
+  .locked-blur-zone { position: relative; }
+  .locked-blur-content { filter: blur(6px); user-select: none; pointer-events: none; opacity: 0.45; }
+  .locked-cta-overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px;
+    background: rgba(250,249,247,0.9); border-radius: 14px; padding: 24px; text-align: center;
+  }
+  .locked-cta-title { font-size: 14px; font-weight: 700; color: var(--foreground); }
+  .locked-cta-sub { font-size: 12px; color: var(--muted); line-height: 1.55; max-width: 280px; }
+  .locked-cta-btn {
+    margin-top: 4px; padding: 10px 22px; background: var(--foreground); color: white;
+    border: none; border-radius: 10px; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: opacity .15s;
+  }
+  .locked-cta-btn:hover { opacity: 0.82; }
+  .request-sent-state { text-align: center; padding: 32px 20px; }
+
+  .spread-chevron {
+    color: var(--muted); opacity: 0.35;
+    transition: opacity .15s, transform .15s;
+    font-size: 14px; text-align: center; line-height: 1;
+  }
+  .spread-row:hover .spread-chevron { opacity: 0.7; transform: translateX(2px); }
+
+  /* ────────────────────────────────────────────────────────
+     MODAL
+  ──────────────────────────────────────────────────────── */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(28,42,57,0.35);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    align-items: center; justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-box {
+    background: white; border-radius: 20px;
+    padding: 28px 32px; width: 440px; max-width: 90vw;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    max-height: 80vh; overflow-y: auto;
+    animation: modalIn .2s ease;
+  }
+  @keyframes modalIn { from { opacity:0; transform: scale(0.96) translateY(8px); } to { opacity:1; transform: none; } }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .modal-title { font-size: 15px; font-weight: 700; color: var(--foreground); }
+  .modal-tier-badge {
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid var(--glass-border); background: white;
+    cursor: pointer; font-size: 14px; color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s; font-family: inherit;
+    flex-shrink: 0; margin-left: 8px;
+  }
+  .modal-close:hover { background: var(--navy-2); color: var(--foreground); }
+  .modal-hotel-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--subtle-border);
+  }
+  .modal-hotel-row:last-child { border-bottom: none; }
+  .modal-hotel-name { font-size: 13.5px; font-weight: 500; color: var(--foreground); }
+  .modal-hotel-rating {
+    font-size: 16px; font-weight: 800; min-width: 36px; text-align: right;
+  }
+
+
+  /* ── WINS CARD ── */
+  .wins-card { background: var(--glass-bg); border-radius: 18px; padding: 32px 36px; border: 1px solid var(--glass-border); box-shadow: var(--card-shadow); margin-bottom: 20px; }
+  .wins-card-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+  .wins-card-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; }
+  .wins-card-sub { font-size: 13px; color: var(--text-tertiary); }
+  .wins-see-all { background: none; border: 1.5px solid var(--navy-3); padding: 8px 16px; border-radius: 9px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: background .15s; white-space: nowrap; flex-shrink: 0; }
+  .wins-see-all:hover { background: var(--navy-2); }
+  .wins-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .wins-metric { text-align: center; padding: 8px 32px 8px; border-right: 1px solid var(--navy-2); }
+  .wins-metric:last-child { border-right: none; }
+  .wins-metric-num { font-size: 64px; font-weight: 800; color: var(--success); letter-spacing: -4px; line-height: 1; margin-bottom: 12px; }
+  .wins-metric-label { font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.4; }
+
+  /* ── WINS MODAL ── */
+  .wins-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: none; align-items: flex-start; justify-content: center; padding: 40px 24px; overflow-y: auto; }
+  .wins-overlay.open { display: flex; }
+  .wins-modal { background: var(--background); border-radius: 20px; width: 100%; max-width: 800px; padding: 40px; box-shadow: 0 24px 80px rgba(0,0,0,0.2); margin: auto; }
+  .wins-modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+  .wins-modal-title { font-size: 22px; font-weight: 800; color: var(--foreground); }
+  .wins-modal-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .wins-modal-close { background: none; border: none; font-size: 22px; color: var(--muted); cursor: pointer; padding: 4px 10px; border-radius: 8px; line-height: 1; }
+  .wins-modal-close:hover { background: var(--navy-2); }
+  .wins-sec-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding-bottom: 12px; border-bottom: 1.5px solid var(--navy-2); margin-bottom: 20px; }
+  .wins-divider { height: 1px; background: var(--navy-2); margin: 36px 0; }
+
+  /* Platform climbs in modal */
+  .modal-climbs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .modal-climb { padding: 14px; border-radius: 12px; background: var(--navy-4); border: 1px solid var(--navy-2); }
+  .modal-climb-plat { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .modal-climb-plat-name { font-size: 12px; font-weight: 700; color: var(--foreground); }
+  .modal-climb-hotel { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+  .modal-climb-nums { display: flex; align-items: baseline; gap: 6px; }
+  .modal-climb-before { font-size: 18px; font-weight: 700; color: var(--muted); }
+  .modal-climb-arr { font-size: 12px; color: var(--muted); }
+  .modal-climb-after { font-size: 26px; font-weight: 800; color: var(--success); letter-spacing: -1px; }
+  .modal-climb-suffix { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .modal-climb-badge { display: inline-flex; margin-top: 8px; padding: 2px 7px; border-radius: 20px; background: rgba(58,122,85,0.1); color: var(--success); font-size: 11px; font-weight: 700; }
+
+  /* Issues in incline */
+  .issue-block { margin-bottom: 0; }
+  .issue-block-sep { height: 1px; background: var(--navy-2); margin: 28px 0; }
+  .issue-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+  .issue-title { font-size: 20px; font-weight: 800; color: var(--foreground); line-height: 1.2; margin-bottom: 6px; }
+  .issue-hotel-tag { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .issue-radar-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--gold-dark); text-decoration: none; padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(201,168,106,0.35); white-space: nowrap; flex-shrink: 0; margin-top: 2px; transition: background .15s; }
+  .issue-radar-link:hover { background: rgba(201,168,106,0.1); }
+  .issue-accordion-wrap { border: 1px solid var(--navy-2); border-radius: 12px; margin-top: 20px; overflow: hidden; background: var(--glass-bg); }
+  .issue-accordion-toggle { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; transition: background .15s; }
+  .issue-accordion-toggle:hover { background: var(--navy-4); }
+  .issue-accordion-toggle.open { border-bottom: 1px solid var(--navy-2); }
+  .issue-accordion-label { font-size: 15px; font-weight: 700; color: var(--text-secondary); }
+  .issue-accordion-chevron { font-size: 20px; color: var(--muted); transition: transform .22s; line-height: 1; }
+  .issue-accordion-toggle.open .issue-accordion-chevron { transform: rotate(180deg); }
+  .issue-accordion-body { display: none; }
+  .issue-accordion-body.open { display: block; }
+  .issue-accordion-inner { padding: 20px 20px 24px; }
+  .issue-accordion-divider { height: 1px; background: var(--navy-2); margin: 18px 0; }
+
+  /* Assigned team */
+  .issue-sub-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 12px; margin-top: 0; }
+  .team-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+  .team-card { text-align: center; }
+  .team-avatar-wrap { position: relative; width: 48px; margin: 0 auto 8px; }
+  .team-avatar { width: 48px; height: 48px; border-radius: 50%; background: #3B4E60; color: #fff; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .team-crown { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); font-size: 14px; line-height: 1; }
+  .team-name { font-size: 12px; font-weight: 700; color: var(--foreground); line-height: 1.3; margin-bottom: 2px; }
+  .team-dept { font-size: 11px; color: var(--muted); }
+
+  /* Progress bar */
+  .ib-wrap { margin-bottom: 8px; }
+  .ib-nums-row { position: relative; height: 32px; margin-bottom: 6px; }
+  .ib-num { position: absolute; transform: translateX(-50%); font-size: 20px; font-weight: 800; line-height: 1; }
+  .ib-num.cur { color: var(--foreground); }
+  .ib-num.imp { color: var(--success); }
+  .ib-num.tgt { color: var(--gold-dark); }
+  .ib-track { position: relative; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.08); margin-bottom: 10px; }
+  .ib-fill-g { position: absolute; height: 100%; border-radius: 3px; background: var(--success); }
+  .ib-fill-au { position: absolute; height: 100%; border-radius: 0 3px 3px 0; background: var(--gold); }
+  .ib-dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; top: -3px; transform: translateX(-50%); border: 2.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); }
+  .ib-dot.cur { background: var(--foreground); }
+  .ib-dot.imp { background: var(--success); }
+  .ib-dot.tgt { background: var(--gold); }
+  /* Legend — one line per colour, stacked, so it never overlaps regardless of dot spacing */
+  .ib-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .ib-legend-row { display: flex; align-items: center; gap: 8px; }
+  .ib-legend-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .ib-legend-dot.cur { background: var(--foreground); }
+  .ib-legend-dot.imp { background: var(--success); }
+  .ib-legend-dot.tgt { background: var(--gold); }
+  .ib-legend-text { font-size: 12.5px; font-weight: 600; color: var(--foreground); }
+  .ib-caption { font-size: 11.5px; color: var(--muted); font-style: italic; margin-top: 6px; margin-bottom: 28px; }
+
+  /* Assigned team */
+  .issue-sub-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 14px; margin-top: 28px; }
+  .team-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 0; }
+  .team-card { padding: 16px 18px; border-radius: 13px; border: 1px solid var(--navy-3); background: var(--glass-bg); text-align: center; min-width: 110px; }
+  .team-avatar { width: 44px; height: 44px; border-radius: 50%; background: #3B4E60; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+  .team-name { font-size: 12px; font-weight: 700; color: var(--foreground); line-height: 1.3; margin-bottom: 3px; }
+  .team-dept { font-size: 11px; color: var(--muted); }
+
+  /* Tasks table */
+  .tasks-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .tasks-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding: 0 10px 10px; text-align: left; border-bottom: 1px solid var(--navy-2); }
+  .tasks-table td { padding: 13px 10px; border-bottom: 1px solid var(--navy-4); color: var(--text-secondary); vertical-align: top; line-height: 1.4; }
+  .tasks-table tr:last-child td { border-bottom: none; }
+  .task-date { white-space: nowrap; color: var(--muted); font-size: 11px; }
+  .task-due { white-space: nowrap; color: var(--muted); font-size: 11px; }
+  .st-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; cursor: default; }
+  .st-chip.overdue { background: rgba(176,64,64,0.1); color: var(--danger); }
+  .st-chip.inprog  { background: rgba(184,122,48,0.1); color: var(--warn); }
+  .st-chip.done    { background: rgba(58,122,85,0.1);  color: var(--success); }
+</style>
+</head>
+<body class="sidebar-open">
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <div class="topbar-right">
+    <div class="topbar-user-info">
+      <div class="topbar-avatar">A</div>
+      <span class="topbar-greeting">Hi, Jordan</span>
+    </div>
+    <span class="topbar-badge">Meridian Hotels</span>
+    <div style="width:1px;height:16px;background:var(--glass-border)"></div>
+    <a class="topbar-signout" href="#">Sign out</a>
+  </div>
+</header>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+
+  <!-- Hamburger -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <div class="hb-line hb-line-1"></div>
+    <div class="hb-line hb-line-2"></div>
+    <div class="hb-line hb-line-3"></div>
+  </button>
+
+  <!-- Logo -->
+  <div class="sidebar-logo-row">
+    <a class="sidebar-logo-mark" href="#">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;">
+        <polygon points="16,4 19.1,12.4 28,12.9 21.5,18.6 23.6,27.2 16,22.4 8.4,27.2 10.5,18.6 4,12.9 12.9,12.4" fill="#C9A86A"/>
+      </svg>
+    </a>
+    <span class="sidebar-logo-text" style="font-size:15px;font-weight:800;letter-spacing:-0.4px;color:var(--foreground);white-space:nowrap;">Rating<span style="color:var(--gold);">IQ</span></span>
+  </div>
+
+  <!-- Chain name chip (expanded only) -->
+  <div class="sidebar-chain">
+    <div class="sidebar-chain-inner">
+      <div class="sidebar-chain-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      </div>
+      <div class="sidebar-chain-name">Meridian Hotels</div>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- Page tabs -->
+  <div class="sidebar-nav">
+    <div class="sidebar-group-label">View</div>
+
+    <a class="sidebar-nav-item active" data-tip="Properties" href="#hotel-portfolio" onclick="event.preventDefault();document.getElementById('hotel-portfolio').scrollIntoView({behavior:'smooth',block:'start'});">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="sni-label">Properties</span>
+    </a>
+
+    <a class="sidebar-nav-item" data-tip="Review Activity" href="#review-activity" onclick="event.preventDefault();document.getElementById('review-activity').scrollIntoView({behavior:'smooth',block:'start'});">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span class="sni-label">Review Activity</span>
+    </a>
+
+    <a class="sidebar-nav-item" data-tip="Chain Comparison" href="#chain-comparison" onclick="event.preventDefault();document.getElementById('chain-comparison').scrollIntoView({behavior:'smooth',block:'start'});">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/></svg>
+      <span class="sni-label">Chain Comparison</span>
+    </a>
+
+    <a class="sidebar-nav-item" data-tip="Leaderboard" href="#people-leaderboard" onclick="event.preventDefault();document.getElementById('people-leaderboard').scrollIntoView({behavior:'smooth',block:'start'});">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+      <span class="sni-label">Leaderboard</span>
+    </a>
+
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- Per-hotel module switcher -->
+  <div class="sidebar-nav">
+    <div class="sidebar-group-label">Per-Hotel</div>
+    <a class="sidebar-nav-item" data-tip="GuestIQ" href="../guestiq/">
+      <span class="sni-chip guest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+      <span class="sni-label">GuestIQ</span>
+    </a>
+    <a class="sidebar-nav-item" data-tip="OperatingIQ" href="../operatingiq/">
+      <span class="sni-chip oper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+      <span class="sni-label">OperatingIQ</span>
+    </a>
+    <a class="sidebar-nav-item" data-tip="ReplyIQ" href="../replyiq/">
+      <span class="sni-chip reply"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+      <span class="sni-label">ReplyIQ</span>
+    </a>
+  </div>
+
+</aside>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="layout">
+  <div class="layout-inner">
+    <div class="page-content">
+
+      <!-- Chain identity header -->
+      <div class="chain-header">
+        <div class="chain-name">Meridian Hotels</div>
+        <div class="chain-sub">My Hotels &middot; 25 properties with data</div>
+      </div>
+
+      <!-- Row 1: 2 large KPI cards -->
+      <div class="kpi-top-row">
+
+        <!-- Card 1: Chain Score + sparkline -->
+        <div class="kpi-card score-card" onclick="openMonthlyModal()">
+          <div class="kpi-widget-label" style="font-size:14px">Chain Avg Rating</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+            <svg width="40" height="40" viewBox="0 0 2732 2672" fill-rule="evenodd" clip-rule="evenodd" style="flex-shrink:0"><path d="m2732.032 513.03c0-283.141-229.978-513.015-513.118-513.015h-1705.89c-283.138 0-513.116 229.874-513.116 513.015v1645.965c0 283.066 229.978 513.016 513.118 513.016h1705.889c283.14 0 513.118-229.95 513.118-513.016z" fill="#0c3b7c"/><path d="m.001 1659.991h1364.531v1012.019h-1364.53z" fill="#0c3b7c"/><g fill-rule="nonzero"><path d="m1241.6 1768.638-220.052-.22v-263.12c0-56.22 21.808-85.48 69.917-92.165h150.136c107.068 0 176.328 67.507 176.328 176.766 0 112.219-67.507 178.63-176.328 178.739zm-220.052-709.694v-69.26c0-60.602 25.643-89.424 81.862-93.15h112.657c96.547 0 154.41 57.753 154.41 154.52 0 73.643-39.671 159.67-150.903 159.67h-198.026zm501.037 262.574-39.78-22.356 34.74-29.699c40.437-34.74 108.163-112.876 108.163-247.67 0-206.464-160.109-339.614-407.888-339.614h-282.738v-.11h-32.219c-73.424 2.74-132.273 62.466-133.04 136.329v1171.499h453.586c275.396 0 453.148-149.917 453.148-382.135 0-125.04-57.424-231.889-153.972-286.244" fill="#fff"/><path d="m1794.688 1828.066c0-89.492 72.178-161.894 161.107-161.894 89.154 0 161.669 72.402 161.669 161.894 0 89.379-72.515 161.894-161.67 161.894-88.928 0-161.106-72.515-161.106-161.894" fill="#00bafc"/></g></svg>
+            <div class="score-num" style="margin:0">8.75</div>
+          </div>
+
+          <!-- Mini sparkline -->
+          <svg viewBox="0 0 200 46" width="100%" height="46" preserveAspectRatio="none" style="display:block;overflow:visible">
+            <defs>
+              <linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3a7a55" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#3a7a55" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M 0,40 L 28.6,32.4 L 57.1,32.4 L 85.7,29.7 L 114.3,28.8 L 142.9,27 L 171.4,13.5 L 200,11.2 L 200,45 L 0,45 Z" fill="url(#spark-grad)"/>
+            <path d="M 0,40 L 28.6,32.4 L 57.1,32.4 L 85.7,29.7 L 114.3,28.8 L 142.9,27 L 171.4,13.5 L 200,11.2" fill="none" stroke="#3a7a55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="200" cy="11.2" r="3.5" fill="#3a7a55"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:5px">
+            <span>Oct '25</span><span>May '26</span>
+          </div>
+
+          <div class="score-expand-hint">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            View monthly breakdown
+          </div>
+        </div>
+
+        <!-- Card 2: Recent Rating Drop -->
+        <div class="kpi-card alert-card-wrap">
+          <div class="kpi-widget-label" style="color:#C0392B;margin-bottom:14px">Recent Rating Drop</div>
+          <div class="alert-hotel-name">Meridian Old Quarter</div>
+          <div class="alert-top-row">
+            <div class="alert-platform-icon">
+              <svg width="48" height="48" viewBox="0 0 2732 2672" fill-rule="evenodd" clip-rule="evenodd"><path d="m2732.032 513.03c0-283.141-229.978-513.015-513.118-513.015h-1705.89c-283.138 0-513.116 229.874-513.116 513.015v1645.965c0 283.066 229.978 513.016 513.118 513.016h1705.889c283.14 0 513.118-229.95 513.118-513.016z" fill="#0c3b7c"/><path d="m.001 1659.991h1364.531v1012.019h-1364.53z" fill="#0c3b7c"/><g fill-rule="nonzero"><path d="m1241.6 1768.638-220.052-.22v-263.12c0-56.22 21.808-85.48 69.917-92.165h150.136c107.068 0 176.328 67.507 176.328 176.766 0 112.219-67.507 178.63-176.328 178.739zm-220.052-709.694v-69.26c0-60.602 25.643-89.424 81.862-93.15h112.657c96.547 0 154.41 57.753 154.41 154.52 0 73.643-39.671 159.67-150.903 159.67h-198.026zm501.037 262.574-39.78-22.356 34.74-29.699c40.437-34.74 108.163-112.876 108.163-247.67 0-206.464-160.109-339.614-407.888-339.614h-282.738v-.11h-32.219c-73.424 2.74-132.273 62.466-133.04 136.329v1171.499h453.586c275.396 0 453.148-149.917 453.148-382.135 0-125.04-57.424-231.889-153.972-286.244" fill="#fff"/><path d="m1794.688 1828.066c0-89.492 72.178-161.894 161.107-161.894 89.154 0 161.669 72.402 161.669 161.894 0 89.379-72.515 161.894-161.67 161.894-88.928 0-161.106-72.515-161.106-161.894" fill="#00bafc"/></g></svg>
+            </div>
+            <span class="alert-delta drop">−0.4</span>
+          </div>
+          <div class="alert-bottom-row">
+            <div class="alert-ratings">
+              <div class="alert-rating-item">
+                <span class="alert-rating-label">Before</span>
+                <span class="alert-rating-val">8.3</span>
+              </div>
+              <div class="alert-rating-item">
+                <span class="alert-rating-label">Now</span>
+                <span class="alert-rating-val">7.9<span style="font-size:20px;font-weight:500;color:var(--muted)">/10</span></span>
+              </div>
+            </div>
+            <a href="#" class="alert-cta-link" onclick="event.preventDefault();openImproveModal('Meridian Old Quarter', 7.9);"><span>Improve</span><span>with</span><span>RatingIQ →</span></a>
+          </div>
+        </div>
+
+        <!-- Card 3: Recent Rating Climb -->
+        <div class="kpi-card alert-card-wrap">
+          <div class="kpi-widget-label" style="color:#2E7D54;margin-bottom:14px">Recent Rating Climb</div>
+          <div class="alert-hotel-name">Horizon Bay Resort</div>
+          <div class="alert-top-row">
+            <div class="alert-platform-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="white" stroke="#E0E0E0" stroke-width="1.5"/><g transform="translate(10,10) scale(1.1667)"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></g></svg>
+            </div>
+            <span class="alert-delta climb">+0.3</span>
+          </div>
+          <div class="alert-bottom-row">
+            <div class="alert-ratings">
+              <div class="alert-rating-item">
+                <span class="alert-rating-label">Before</span>
+                <span class="alert-rating-val">4.1</span>
+              </div>
+              <div class="alert-rating-item">
+                <span class="alert-rating-label">Now</span>
+                <span class="alert-rating-val">4.4<span style="font-size:20px;font-weight:500;color:var(--muted)">/5</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Wins Since RatingIQ -->
+      <div class="wins-card" style="cursor:pointer" onclick="openWinsModal()">
+        <div class="wins-card-hdr">
+          <div>
+            <div class="wins-card-title">Wins Since RatingIQ</div>
+            <div class="wins-card-sub">Results the chain has seen since we started working together</div>
+          </div>
+          <button class="wins-see-all" onclick="openWinsModal()">See full breakdown →</button>
+        </div>
+        <div class="wins-metrics">
+          <div class="wins-metric">
+            <div class="wins-metric-num">4</div>
+            <div class="wins-metric-label">Issues actively<br>improving</div>
+          </div>
+          <div class="wins-metric">
+            <div class="wins-metric-num">+0.3</div>
+            <div class="wins-metric-label">Avg rating gained<br>across platforms</div>
+          </div>
+          <div class="wins-metric">
+            <div class="wins-metric-num">2</div>
+            <div class="wins-metric-label">Platform rating<br>climbs recorded</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOTEL PORTFOLIO WIDGET (moved above inflow) -->
+      <div class="portfolio-card" id="hotel-portfolio" style="scroll-margin-top:calc(var(--topbar-h) + 16px);">
+        <div class="portfolio-header">
+          <div>
+            <div class="portfolio-title">Hotel Portfolio</div>
+            <div class="portfolio-sub">25 hotels · 5 in portfolio · lowest rated first</div>
+          </div>
+          <input class="hotel-search" type="text" id="hotel-search" placeholder="Search hotels…" />
+        </div>
+        <table class="pt-table" id="hotel-grid">
+          <thead>
+            <tr>
+              <th class="pt-th-name pt-sortable" onclick="sortHotels('name')">Hotel<span class="pt-sort-arrow" data-col="name"></span></th>
+              <th class="pt-sortable" onclick="sortHotels('booking')"><svg width="12" height="12" viewBox="0 0 2732 2672" fill-rule="evenodd" clip-rule="evenodd" style="vertical-align:middle;margin-right:3px"><path d="m2732.032 513.03c0-283.141-229.978-513.015-513.118-513.015h-1705.89c-283.138 0-513.116 229.874-513.116 513.015v1645.965c0 283.066 229.978 513.016 513.118 513.016h1705.889c283.14 0 513.118-229.95 513.118-513.016z" fill="#0c3b7c"/><path d="m.001 1659.991h1364.531v1012.019h-1364.53z" fill="#0c3b7c"/><g fill-rule="nonzero"><path d="m1241.6 1768.638-220.052-.22v-263.12c0-56.22 21.808-85.48 69.917-92.165h150.136c107.068 0 176.328 67.507 176.328 176.766 0 112.219-67.507 178.63-176.328 178.739zm-220.052-709.694v-69.26c0-60.602 25.643-89.424 81.862-93.15h112.657c96.547 0 154.41 57.753 154.41 154.52 0 73.643-39.671 159.67-150.903 159.67h-198.026zm501.037 262.574-39.78-22.356 34.74-29.699c40.437-34.74 108.163-112.876 108.163-247.67 0-206.464-160.109-339.614-407.888-339.614h-282.738v-.11h-32.219c-73.424 2.74-132.273 62.466-133.04 136.329v1171.499h453.586c275.396 0 453.148-149.917 453.148-382.135 0-125.04-57.424-231.889-153.972-286.244" fill="#fff"/><path d="m1794.688 1828.066c0-89.492 72.178-161.894 161.107-161.894 89.154 0 161.669 72.402 161.669 161.894 0 89.379-72.515 161.894-161.67 161.894-88.928 0-161.106-72.515-161.106-161.894" fill="#00bafc"/></g></svg>Booking<span class="pt-sort-arrow" data-col="booking"></span></th>
+              <th class="pt-sortable" onclick="sortHotels('google')"><svg width="12" height="12" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:3px"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google<span class="pt-sort-arrow" data-col="google"></span></th>
+              <th class="pt-sortable" onclick="sortHotels('tripadvisor')"><svg width="12" height="12" viewBox="0 0 14 14" style="vertical-align:middle;margin-right:3px"><rect width="14" height="14" rx="2.5" fill="#00AF87"/><text x="7" y="11" text-anchor="middle" fill="white" font-size="7" font-weight="800" font-family="Arial,sans-serif">TA</text></svg>TripAdvisor<span class="pt-sort-arrow" data-col="tripadvisor"></span></th>
+              <th class="pt-sortable" onclick="sortHotels('expedia')"><svg width="12" height="12" viewBox="0 0 14 14" style="vertical-align:middle;margin-right:3px"><rect width="14" height="14" rx="2.5" fill="#FFC72C"/><text x="7" y="11" text-anchor="middle" fill="#00355F" font-size="7.5" font-weight="800" font-family="Arial,sans-serif">E</text></svg>Expedia<span class="pt-sort-arrow" data-col="expedia"></span></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="hotel-tbody"></tbody>
+        </table>
+        <div class="no-results-msg" id="hotel-no-results">No hotels match your search.</div>
+      </div>
+
+      <!-- MONTHLY REVIEW INFLOW — standalone chart -->
+      <div class="inflow-card" id="review-activity" style="scroll-margin-top:calc(var(--topbar-h) + 16px);">
+        <div style="margin-bottom:20px">
+          <div class="inflow-title">Review Activity</div>
+          <div class="inflow-sub">Chain-wide · past 12 months</div>
+        </div>
+        <div class="inflow-chart-wrap">
+          <div class="inflow-tooltip" id="inflow-tip"></div>
+          <div id="inflow-svg-wrap"></div>
+        <!-- dummy svg start tag removed - chart is JS-generated -->
+        <svg style="display:none">
+            <!-- gridlines -->
+            <line x1="30" y1="20"  x2="820" y2="20"  stroke="rgba(0,0,0,0.07)" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="30" y1="66"  x2="820" y2="66"  stroke="rgba(0,0,0,0.07)" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="30" y1="112" x2="820" y2="112" stroke="rgba(0,0,0,0.07)" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="30" y1="158" x2="820" y2="158" stroke="rgba(0,0,0,0.07)" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="30" y1="195" x2="820" y2="195" stroke="rgba(0,0,0,0.1)"  stroke-width="1"/>
+            <!-- left y-axis: reviews -->
+            <text x="24" y="23"  font-size="11" fill="#8A9AAD" text-anchor="end">800</text>
+            <text x="24" y="69"  font-size="11" fill="#8A9AAD" text-anchor="end">600</text>
+            <text x="24" y="115" font-size="11" fill="#8A9AAD" text-anchor="end">400</text>
+            <text x="24" y="161" font-size="11" fill="#8A9AAD" text-anchor="end">200</text>
+            <text x="24" y="198" font-size="11" fill="#8A9AAD" text-anchor="end">0</text>
+            <!-- right y-axis: avg rating -->
+            <text x="828" y="23"  font-size="11" fill="#C9A86A">9.5</text>
+            <text x="828" y="58"  font-size="11" fill="#C9A86A">9.0</text>
+            <text x="828" y="109" font-size="11" fill="#C9A86A">8.3</text>
+            <text x="828" y="156" font-size="11" fill="#C9A86A">7.7</text>
+            <text x="828" y="198" font-size="11" fill="#C9A86A">7.0</text>
+            <!-- bars (x centers: 60,120,180,240,300,360,420,480,540,600,660,720,780; bar width 36) -->
+            <rect x="42"  y="191.6" width="36" height="3.4"   fill="#B2BEC9" rx="2"/>
+            <rect x="102" y="93.9"  width="36" height="101.1" fill="#B2BEC9" rx="2"/>
+            <rect x="162" y="68.7"  width="36" height="126.3" fill="#B2BEC9" rx="2"/>
+            <rect x="222" y="56.9"  width="36" height="138.1" fill="#B2BEC9" rx="2"/>
+            <rect x="282" y="57.6"  width="36" height="137.4" fill="#B2BEC9" rx="2"/>
+            <rect x="342" y="46.5"  width="36" height="148.5" fill="#B2BEC9" rx="2"/>
+            <rect x="402" y="47.4"  width="36" height="147.6" fill="#B2BEC9" rx="2"/>
+            <rect x="462" y="41.5"  width="36" height="153.5" fill="#B2BEC9" rx="2"/>
+            <rect x="522" y="70.8"  width="36" height="124.2" fill="#B2BEC9" rx="2"/>
+            <rect x="582" y="143.4" width="36" height="51.6"  fill="#B2BEC9" rx="2"/>
+            <rect x="642" y="120.6" width="36" height="74.4"  fill="#B2BEC9" rx="2"/>
+            <rect x="702" y="79.1"  width="36" height="115.9" fill="#B2BEC9" rx="2"/>
+            <rect x="762" y="83.8"  width="36" height="111.2" fill="#B2BEC9" rx="2"/>
+            <!-- avg rating line -->
+            <path d="M 60,148.6 L 120,95.3 L 180,114.0 L 240,82.4 L 300,75.3 L 360,83.7 L 420,72.0 L 480,52.3 L 540,46.8 L 600,66.5 L 660,68.9 L 720,94.1 L 780,97.3"
+                  fill="none" stroke="#C9A86A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- dots -->
+            <g class="inflow-dot-hit" data-i="0"  data-cx="60"  data-cy="148.6"><circle cx="60"  cy="148.6" r="16" fill="transparent"/><circle cx="60"  cy="148.6" r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="1"  data-cx="120" data-cy="95.3"> <circle cx="120" cy="95.3"  r="16" fill="transparent"/><circle cx="120" cy="95.3"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="2"  data-cx="180" data-cy="114.0"><circle cx="180" cy="114.0" r="16" fill="transparent"/><circle cx="180" cy="114.0" r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="3"  data-cx="240" data-cy="82.4"> <circle cx="240" cy="82.4"  r="16" fill="transparent"/><circle cx="240" cy="82.4"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="4"  data-cx="300" data-cy="75.3"> <circle cx="300" cy="75.3"  r="16" fill="transparent"/><circle cx="300" cy="75.3"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="5"  data-cx="360" data-cy="83.7"> <circle cx="360" cy="83.7"  r="16" fill="transparent"/><circle cx="360" cy="83.7"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="6"  data-cx="420" data-cy="72.0"> <circle cx="420" cy="72.0"  r="16" fill="transparent"/><circle cx="420" cy="72.0"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="7"  data-cx="480" data-cy="52.3"> <circle cx="480" cy="52.3"  r="16" fill="transparent"/><circle cx="480" cy="52.3"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="8"  data-cx="540" data-cy="46.8"> <circle cx="540" cy="46.8"  r="16" fill="transparent"/><circle cx="540" cy="46.8"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="9"  data-cx="600" data-cy="66.5"> <circle cx="600" cy="66.5"  r="16" fill="transparent"/><circle cx="600" cy="66.5"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="10" data-cx="660" data-cy="68.9"> <circle cx="660" cy="68.9"  r="16" fill="transparent"/><circle cx="660" cy="68.9"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="11" data-cx="720" data-cy="94.1"> <circle cx="720" cy="94.1"  r="16" fill="transparent"/><circle cx="720" cy="94.1"  r="4.5" fill="white" stroke="#C9A86A" stroke-width="2"/></g>
+            <g class="inflow-dot-hit" data-i="12" data-cx="780" data-cy="97.3"> <circle cx="780" cy="97.3"  r="16" fill="transparent"/><circle cx="780" cy="97.3"  r="5.5" fill="#C9A86A" stroke="#C9A86A" stroke-width="2"/></g>
+            <!-- x-axis labels -->
+            <text x="60"  y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2025-06</text>
+            <text x="120" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2025-07</text>
+            <text x="180" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2025-08</text>
+            <text x="240" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2025-09</text>
+            <text x="300" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2025-10</text>
+            <text x="360" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2025-11</text>
+            <text x="420" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2025-12</text>
+            <text x="480" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2026-01</text>
+            <text x="540" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2026-02</text>
+            <text x="600" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2026-03</text>
+            <text x="660" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2026-04</text>
+            <text x="720" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">2026-05</text>
+          </svg><!-- end dummy -->
+        </div>
+
+        <!-- PER-PROPERTY MONTHLY CHARTS -->
+        <div class="prop-charts-section">
+          <div class="prop-charts-label">Reviews &amp; Avg Rating · Per Property · Past 12 Months</div>
+          <div id="prop-charts-list"></div>
+        </div>
+
+        <hr class="ra-divider"/>
+        <div class="inflow-header" style="margin-bottom:6px">
+          <div>
+            <div class="inflow-title">Review Activity Per Property</div>
+            <div class="inflow-sub" id="ra-table-sub">14 hotels received reviews today</div>
+          </div>
+          <div class="ra-tabs">
+            <button class="ra-tab active" onclick="switchTab('daily',this)">Daily</button>
+            <button class="ra-tab" onclick="switchTab('weekly',this)">Weekly</button>
+            <button class="ra-tab" onclick="switchTab('monthly',this)">Monthly</button>
+          </div>
+        </div>
+        <table class="ra-table">
+          <thead>
+            <tr>
+              <th style="width:32px">#</th>
+              <th>Hotel</th>
+              <th class="r">Booking Score</th>
+              <th class="c" id="ra-avg-header">Month Review Avg</th>
+              <th class="r">Reviews</th>
+            </tr>
+          </thead>
+          <tbody id="ra-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- CHAIN COMPARISON -->
+      <div class="cc-card" id="chain-comparison" style="scroll-margin-top:calc(var(--topbar-h) + 16px);">
+        <div class="inflow-header" style="margin-bottom:12px">
+          <div>
+            <div class="inflow-title">Chain Comparison</div>
+            <div class="inflow-sub">Meridian Hotels vs the market · click any chain below to compare</div>
+          </div>
+        </div>
+        <div class="cc-legend" id="cc-legend"></div>
+        <div style="position:relative;margin-bottom:8px">
+          <div id="cc-chart-wrap"></div>
+        </div>
+        <hr class="ra-divider"/>
+        <table class="cc-table">
+          <thead>
+            <tr>
+              <th style="width:32px">#</th>
+              <th>Chain</th>
+              <th class="r">No. of Hotels</th>
+              <th class="r">Avg Rating</th>
+              <th class="r">MoM <span class="tip-wrap" style="font-weight:400;text-transform:none;letter-spacing:0"><span class="tip-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span><span class="tip-box tip-above tip-left"><div class="tip-label">Month over Month</div><div class="tip-body">Change in average Booking.com rating compared to the previous month. Positive means the chain improved, negative means it declined.</div></span></span></th>
+              <th class="cc-toggle"></th>
+            </tr>
+          </thead>
+          <tbody id="cc-tbody"></tbody>
+        </table>
+        <div class="cc-cap-note" id="cc-cap-note">Maximum 3 chains added — remove one to add another</div>
+      </div>
+
+      <!-- PEOPLE LEADERBOARD -->
+      <div class="portfolio-card" id="people-leaderboard" style="scroll-margin-top:calc(var(--topbar-h) + 16px);">
+        <div class="portfolio-header">
+          <div>
+            <div class="portfolio-title">People Leaderboard</div>
+            <div class="portfolio-sub" id="pl-sub">Each hotel's team ranked by guest rating · click a member to open their profile in Radar</div>
+          </div>
+        </div>
+        <div class="pl-hotel-grid" id="pl-list"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- STREAK LEADERBOARD MODAL -->
+<div class="modal-backdrop" id="streak-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="width:560px;max-height:80vh;overflow-y:auto">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">High Rating Streak Leaderboard</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">Consecutive review-days where every guest scored at or above threshold</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('streak-modal').classList.remove('open')">✕</button>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="border-bottom:1px solid var(--glass-border)">
+          <th style="text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 0 10px;width:44px">#</th>
+          <th style="text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 0 10px">Hotel</th>
+          <th style="text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 0 10px">Current Streak</th>
+          <th style="text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 0 10px">Threshold</th>
+        </tr>
+      </thead>
+      <tbody id="streak-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- HOTEL DETAIL MODAL -->
+<div class="modal-backdrop" id="hotel-modal" onclick="closeHotelModalBackdrop(event)">
+  <div class="hotel-modal-box">
+    <div id="hotel-modal-content"></div>
+  </div>
+</div>
+
+<!-- MONTHLY CHART MODAL -->
+<div class="modal-backdrop" id="modal-monthly" onclick="closeMonthlyOnBackdrop(event)">
+  <div class="monthly-modal-box">
+    <div class="modal-header">
+      <div class="monthly-modal-title">Monthly Chain Average</div>
+      <button class="modal-close" onclick="document.getElementById('modal-monthly').classList.remove('open')">✕</button>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-tooltip" id="chart-tip"></div>
+      <svg id="monthly-chart" viewBox="0 0 680 190" width="100%" height="220" style="overflow:visible">
+        <defs>
+          <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a7a55" stop-opacity="0.13"/>
+            <stop offset="100%" stop-color="#3a7a55" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- gridlines -->
+        <line x1="10" y1="28"  x2="638" y2="28"  stroke="#E2DED8" stroke-width="1"/>
+        <line x1="10" y1="61"  x2="638" y2="61"  stroke="#E2DED8" stroke-width="1"/>
+        <line x1="10" y1="94"  x2="638" y2="94"  stroke="#E2DED8" stroke-width="1"/>
+        <line x1="10" y1="127" x2="638" y2="127" stroke="#E2DED8" stroke-width="1"/>
+        <line x1="10" y1="160" x2="638" y2="160" stroke="#E2DED8" stroke-width="1"/>
+        <!-- grid labels -->
+        <text x="646" y="32"  font-size="11" fill="#6B7A8A">8.80</text>
+        <text x="646" y="65"  font-size="11" fill="#6B7A8A">8.60</text>
+        <text x="646" y="98"  font-size="11" fill="#6B7A8A">8.40</text>
+        <text x="646" y="131" font-size="11" fill="#6B7A8A">8.20</text>
+        <text x="646" y="164" font-size="11" fill="#6B7A8A">8.00</text>
+        <!-- area fill -->
+        <path d="M 10,141.9 L 98.6,113.8 L 187.1,113.8 L 275.7,103.9 L 364.3,100.6 L 452.9,94.0 L 541.4,44.5 L 630,36.3 L 630,160 L 10,160 Z" fill="url(#chart-grad)"/>
+        <!-- line -->
+        <path d="M 10,141.9 L 98.6,113.8 L 187.1,113.8 L 275.7,103.9 L 364.3,100.6 L 452.9,94.0 L 541.4,44.5 L 630,36.3" fill="none" stroke="#3a7a55" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- rating labels -->
+        <text x="28"    y="131.9" font-size="11" font-weight="700" fill="#C0392B" text-anchor="middle">8.11</text>
+        <text x="98.6"  y="103.8" font-size="11" font-weight="700" fill="#6B7A8A" text-anchor="middle">8.28</text>
+        <text x="187.1" y="103.8" font-size="11" font-weight="700" fill="#6B7A8A" text-anchor="middle">8.28</text>
+        <text x="275.7" y="93.9"  font-size="11" font-weight="700" fill="#6B7A8A" text-anchor="middle">8.34</text>
+        <text x="364.3" y="90.6"  font-size="11" font-weight="700" fill="#6B7A8A" text-anchor="middle">8.36</text>
+        <text x="452.9" y="84.0"  font-size="11" font-weight="700" fill="#6B7A8A" text-anchor="middle">8.40</text>
+        <text x="541.4" y="34.5"  font-size="11" font-weight="700" fill="#6B7A8A" text-anchor="middle">8.70</text>
+        <text x="615"   y="26.3"  font-size="11" font-weight="700" fill="#3a7a55"  text-anchor="middle">8.75</text>
+        <!-- dots — hover targets -->
+        <g class="chart-dot" data-month="October 2025"   data-val="8.11"><circle cx="10"    cy="141.9" r="5.5" fill="#C0392B" stroke="#C0392B" stroke-width="2"/></g>
+        <g class="chart-dot" data-month="November 2025"  data-val="8.28"><circle cx="98.6"  cy="113.8" r="4.5" fill="white"   stroke="#3a7a55" stroke-width="2"/></g>
+        <g class="chart-dot" data-month="December 2025"  data-val="8.28"><circle cx="187.1" cy="113.8" r="4.5" fill="white"   stroke="#3a7a55" stroke-width="2"/></g>
+        <g class="chart-dot" data-month="January 2026"   data-val="8.34"><circle cx="275.7" cy="103.9" r="4.5" fill="white"   stroke="#3a7a55" stroke-width="2"/></g>
+        <g class="chart-dot" data-month="February 2026"  data-val="8.36"><circle cx="364.3" cy="100.6" r="4.5" fill="white"   stroke="#3a7a55" stroke-width="2"/></g>
+        <g class="chart-dot" data-month="March 2026"     data-val="8.40"><circle cx="452.9" cy="94.0"  r="4.5" fill="white"   stroke="#3a7a55" stroke-width="2"/></g>
+        <g class="chart-dot" data-month="April 2026"     data-val="8.70"><circle cx="541.4" cy="44.5"  r="4.5" fill="white"   stroke="#3a7a55" stroke-width="2"/></g>
+        <g class="chart-dot" data-month="May 2026"       data-val="8.75"><circle cx="630"   cy="36.3"  r="5.5" fill="#3a7a55" stroke="#3a7a55" stroke-width="2"/></g>
+        <!-- month labels -->
+        <text x="10"    y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">Oct '25</text>
+        <text x="98.6"  y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">Nov '25</text>
+        <text x="187.1" y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">Dec '25</text>
+        <text x="275.7" y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">Jan '26</text>
+        <text x="364.3" y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">Feb '26</text>
+        <text x="452.9" y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">Mar '26</text>
+        <text x="541.4" y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">Apr '26</text>
+        <text x="630"   y="178" font-size="11" fill="#8A9AAD" text-anchor="middle">May '26</text>
+      </svg>
+      <div style="display:flex;gap:16px;align-items:center;margin-top:10px;font-size:11px;font-weight:600;color:var(--muted)">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:#C0392B;display:inline-block"></span>Chain low</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:#3a7a55;display:inline-block"></span>Chain high / current</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal" onclick="closeModalOnBackdrop(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-tier-badge" id="modal-badge"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-list"></div>
+  </div>
+</div>
+
+<script>
+const TIERS = {
+  '9plus': {
+    label: 'Hotels rated 9+', color: '#3a7a55',
+    bg: 'rgba(58,122,85,0.1)',
+    hotels: [
+      { name: 'Isla Meridian Bay', rating: 9.9 },
+      { name: 'Horizon Hatzuk Beach', rating: 9.5 },
+      { name: 'Northshore Manor', rating: 9.3 },
+      { name: 'Devora Meridian', rating: 9.2 },
+      { name: 'Northgate Lodge', rating: 9.2 },
+      { name: 'The Sterling Hotel', rating: 9.1 },
+      { name: 'Gonen Holiday Village', rating: 9.0 },
+    ]
+  },
+  '85to9': {
+    label: 'Hotels rated 8.5–9', color: '#A88B52',
+    bg: 'rgba(201,168,106,0.12)',
+    hotels: [
+      { name: 'Numeral Residence Bay', rating: 8.9 },
+      { name: 'The Galilion Retreat', rating: 8.9 },
+      { name: 'Villa Meridian Moshava', rating: 8.9 },
+      { name: 'Villa Meridian Central', rating: 8.9 },
+      { name: 'Horizon Levontin', rating: 8.8 },
+      { name: 'Horizon Seaport', rating: 8.8 },
+      { name: 'Meridian Mamilla Quarter', rating: 8.7 },
+      { name: 'Horizon Midtown', rating: 8.7 },
+      { name: 'Vale Green Lodge', rating: 8.6 },
+      { name: 'Villa Meridian Old Town', rating: 8.6 },
+      { name: 'Meridian Beach House', rating: 8.5 },
+    ]
+  },
+  '8to85': {
+    label: 'Hotels rated 8–8.5', color: '#516B84',
+    bg: 'rgba(81,107,132,0.1)',
+    hotels: [
+      { name: 'Lakeview Manor', rating: 8.4 },
+      { name: 'Horizon Bay Resort', rating: 8.4 },
+      { name: 'Westport Suites', rating: 8.4 },
+      { name: 'Meridian Central', rating: 8.2 },
+      { name: 'Serenity Saltwater Coast', rating: 8.2 },
+      { name: 'Meridian Old Town', rating: 8.1 },
+    ]
+  },
+  'below8': {
+    label: 'Hotels rated below 8', color: '#B04040',
+    bg: 'rgba(176,64,64,0.1)',
+    hotels: [
+      { name: 'Meridian Market Quarter', rating: 7.6 },
+    ]
+  },
+};
+
+function openModal(tier) {
+  const t = TIERS[tier];
+  document.getElementById('modal-title').textContent = t.label;
+  const badge = document.getElementById('modal-badge');
+  badge.textContent = t.hotels.length + ' properties';
+  badge.style.background = t.bg;
+  badge.style.color = t.color;
+  document.getElementById('modal-list').innerHTML = t.hotels.map(h => `
+    <div class="modal-hotel-row">
+      <span class="modal-hotel-name">${h.name}</span>
+      <span class="modal-hotel-rating" style="color:${t.color}">${h.rating}</span>
+    </div>
+  `).join('');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+function closeModalOnBackdrop(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+/* ── CHART DATA PER PERIOD ── */
+const CHART_DATA = {
+  monthly: {
+    chartSub: 'Chain-wide · past 12 months',
+    labels:  ['Jun \'25','Jul \'25','Aug \'25','Sep \'25','Oct \'25','Nov \'25','Dec \'25','Jan \'26','Feb \'26','Mar \'26','Apr \'26','May \'26','Jun \'26'],
+    reviews: [15, 427, 531, 583, 580, 629, 625, 651, 521, 232, 334, 489, 471],
+    avgRating:[7.73,8.50,8.25,8.67,8.76,8.65,8.80,9.05,9.12,8.87,8.84,8.52,8.48]
+  },
+  weekly: {
+    chartSub: 'Chain-wide · past 13 weeks',
+    labels:  ['Mar 3','Mar 10','Mar 17','Mar 24','Apr 7','Apr 14','Apr 21','Apr 28','May 5','May 12','May 19','Jun 2','Jun 23'],
+    reviews: [54, 61, 58, 59, 82, 87, 86, 85, 124, 119, 127, 152, 148],
+    avgRating:[8.89,8.87,8.85,8.86,8.85,8.83,8.82,8.80,8.55,8.52,8.50,8.49,8.48]
+  },
+  daily: {
+    chartSub: 'Chain-wide · past 14 days',
+    labels:  ['Jun 16','Jun 17','Jun 18','Jun 19','Jun 20','Jun 21','Jun 22','Jun 23','Jun 24','Jun 25','Jun 26','Jun 27','Jun 28','Jun 29'],
+    reviews: [31, 38, 29, 42, 36, 41, 27, 25, 38, 44, 37, 33, 36, 34],
+    avgRating:[8.73,8.65,8.82,8.71,8.68,8.75,8.69,8.72,8.77,8.64,8.70,8.68,8.65,8.61]
+  }
+};
+
+function drawChart(period) {
+  const d = CHART_DATA[period];
+  const n = d.labels.length;
+  const W = 860, H = 215;
+  const pL = 30, pR = 42, pT = 20, pB = 30;
+  const cW = W - pL - pR, cH = H - pT - pB;
+  const maxR = Math.ceil(Math.max(...d.reviews) * 1.15 / 100) * 100 || 100;
+  const minA = 7.0, maxA = 9.5;
+
+  const xStep = cW / n;
+  const cx = i => pL + i * xStep + xStep / 2;
+  const bx = i => pL + i * xStep + xStep * 0.15;
+  const bw = xStep * 0.7;
+  const yB = v => pT + cH - (v / maxR) * cH;
+  const bH = v => (v / maxR) * cH;
+  const yL = v => pT + cH - ((v - minA) / (maxA - minA)) * cH;
+
+  const gridVals = [0, maxR*0.25, maxR*0.5, maxR*0.75, maxR];
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="overflow:visible;display:block">`;
+
+  // gridlines + left labels
+  gridVals.forEach(v => {
+    const y = yB(v);
+    s += `<line x1="${pL}" y1="${y}" x2="${W-pR}" y2="${y}" stroke="rgba(0,0,0,0.07)" stroke-width="1" stroke-dasharray="4,3"/>`;
+    s += `<text x="${pL-5}" y="${y+4}" font-size="11" fill="#8A9AAD" text-anchor="end">${Math.round(v)}</text>`;
+  });
+
+  // right labels (rating)
+  [7.0,7.7,8.3,9.0,9.5].forEach(v => {
+    s += `<text x="${W-pR+8}" y="${yL(v)+4}" font-size="11" fill="#C9A86A">${v.toFixed(1)}</text>`;
+  });
+
+  // bars
+  d.reviews.forEach((v,i) => {
+    s += `<rect x="${bx(i).toFixed(1)}" y="${yB(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${bH(v).toFixed(1)}" fill="#B2BEC9" rx="2"/>`;
+  });
+
+  // line
+  s += `<path d="${d.avgRating.map((v,i) => `${i?'L':'M'}${cx(i).toFixed(1)},${yL(v).toFixed(1)}`).join(' ')}" fill="none" stroke="#C9A86A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+  // dots
+  d.avgRating.forEach((v,i) => {
+    const isLast = i === n-1;
+    s += `<g class="inflow-dot-hit" data-i="${i}" data-cx="${cx(i).toFixed(1)}" data-cy="${yL(v).toFixed(1)}">
+      <circle cx="${cx(i).toFixed(1)}" cy="${yL(v).toFixed(1)}" r="14" fill="transparent"/>
+      <circle cx="${cx(i).toFixed(1)}" cy="${yL(v).toFixed(1)}" r="${isLast?5.5:4.5}" fill="${isLast?'#C9A86A':'white'}" stroke="#C9A86A" stroke-width="2"/>
+    </g>`;
+  });
+
+  // x labels
+  d.labels.forEach((lbl,i) => {
+    s += `<text x="${cx(i).toFixed(1)}" y="${H-pB+16}" font-size="11" fill="#8A9AAD" text-anchor="middle">${lbl}</text>`;
+  });
+
+  s += '</svg>';
+  document.getElementById('inflow-svg-wrap').innerHTML = s;
+
+  // rebind tooltips
+  const tip = document.getElementById('inflow-tip');
+  document.querySelectorAll('.inflow-dot-hit').forEach(g => {
+    g.addEventListener('mouseenter', function() {
+      const idx = parseInt(this.dataset.i);
+      const dCur = CHART_DATA[currentPeriod];
+      tip.innerHTML = `<strong>${dCur.labels[idx]}</strong>${dCur.reviews[idx].toLocaleString()} reviews · ${dCur.avgRating[idx]} avg rating`;
+      const svg = document.getElementById('inflow-svg-wrap').querySelector('svg');
+      const sr = svg.getBoundingClientRect();
+      const wr = document.querySelector('.inflow-chart-wrap').getBoundingClientRect();
+      tip.style.left = (sr.left - wr.left + parseFloat(this.dataset.cx) * sr.width / W) + 'px';
+      tip.style.top  = (sr.top  - wr.top  + parseFloat(this.dataset.cy) * sr.height / H - 10) + 'px';
+      tip.classList.add('show');
+    });
+    g.addEventListener('mouseleave', () => tip.classList.remove('show'));
+  });
+}
+
+let currentPeriod = 'monthly';
+
+function switchTab(period, btn) {
+  document.querySelectorAll('.ra-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderRATable(period);
+}
+
+drawChart('monthly');
+
+const INFLOW_DATA = [
+  { month: 'Jun 2025', reviews: 15,  rating: 7.73 },
+  { month: 'Jul 2025', reviews: 427, rating: 8.50 },
+  { month: 'Aug 2025', reviews: 531, rating: 8.25 },
+  { month: 'Sep 2025', reviews: 583, rating: 8.67 },
+  { month: 'Oct 2025', reviews: 580, rating: 8.76 },
+  { month: 'Nov 2025', reviews: 629, rating: 8.65 },
+  { month: 'Dec 2025', reviews: 625, rating: 8.80 },
+  { month: 'Jan 2026', reviews: 651, rating: 9.05 },
+  { month: 'Feb 2026', reviews: 521, rating: 9.12 },
+  { month: 'Mar 2026', reviews: 232, rating: 8.87 },
+  { month: 'Apr 2026', reviews: 334, rating: 8.84 },
+  { month: 'May 2026', reviews: 489, rating: 8.52 },
+  { month: 'Jun 2026', reviews: 471, rating: 8.48 },
+];
+
+
+/* ── HOTEL PORTFOLIO ── */
+let currentModalHotel = null;
+
+const HOTEL_LIST = [
+  { name: 'Aurelia Bay Resort', rating: 8.0, reviews: 3025, prevRating: 7.9, lastChange: '2 weeks ago', google: 4.0, googleReviews: 1847, locked: false,
+    city: 'Playa Serena', cityRank: 12,
+    platforms: { booking:{now:8.0,flagged:7.9}, google:{now:4.0,flagged:3.8}, tripadvisor:{now:8.1,flagged:7.8}, expedia:{now:7.9,flagged:7.7} },
+    pulseUrl: '#', radarUrl: '#' },
+  { name: 'Meridian Market Quarter',        rating: 7.6, reviews: 457, prevRating: null, lastChange: null,           google: 3.5, googleReviews: 312, locked: false,
+    city: 'Old Town Quarter', cityRank: 8,
+    platforms: { booking:{now:7.6,flagged:7.2}, google:{now:3.5,flagged:3.2}, tripadvisor:{now:7.8,flagged:7.1}, expedia:{now:7.4,flagged:7.0} } },
+  { name: 'Meridian Old Town',             rating: 8.1, reviews: 384, prevRating: 8.0,  lastChange: '4 weeks ago',  google: 4.2, googleReviews: 218, locked: false,
+    city: 'Old Town Quarter', cityRank: 14,
+    platforms: { booking:{now:8.1,flagged:7.6}, google:{now:4.2,flagged:3.9}, tripadvisor:{now:8.3,flagged:7.8}, expedia:{now:8.0,flagged:7.5} } },
+  { name: 'Meridian Central',                  rating: 8.2, reviews: 435, prevRating: 8.1,  lastChange: '1 month ago',  google: 4.0, googleReviews: 287, locked: true  },
+  { name: 'Serenity Saltwater Coast',              rating: 8.2, reviews: 418, prevRating: 8.1,  lastChange: '1 month ago',  google: 3.9, googleReviews: 341, locked: false,
+    city: 'Saltwater Coast', cityRank: 6,
+    platforms: { booking:{now:8.2,flagged:7.8}, google:{now:3.9,flagged:3.6}, tripadvisor:{now:8.4,flagged:8.0}, expedia:{now:8.1,flagged:7.7} } },
+  { name: 'Lakeview Manor',          rating: 8.4, reviews: 256, prevRating: 8.5,  lastChange: '3 days ago',   google: 3.7, googleReviews: 176, locked: false,
+    city: 'Lakeside', cityRank: 3,
+    platforms: { booking:{now:8.4,flagged:8.0}, google:{now:3.7,flagged:3.5}, tripadvisor:{now:8.6,flagged:8.1}, expedia:{now:8.2,flagged:7.9} } },
+  { name: 'Horizon Bay Resort',                  rating: 8.4, reviews: 388, prevRating: 8.3,  lastChange: '3 weeks ago',  google: 4.1, googleReviews: 253, locked: true  },
+  { name: 'Westport Suites',                 rating: 8.4, reviews: 223, prevRating: 8.5,  lastChange: '2 days ago',   google: 4.3, googleReviews: 145, locked: true  },
+  { name: 'Meridian Beach House',           rating: 8.5, reviews: 117, prevRating: 8.6,  lastChange: '2 days ago',   google: 3.9, googleReviews: 89,  locked: true  },
+  { name: 'Vale Green Lodge',               rating: 8.6, reviews: 59,  prevRating: null, lastChange: null,           google: 4.4, googleReviews: 67,  locked: true  },
+  { name: 'Villa Meridian Old Town',       rating: 8.6, reviews: 87,  prevRating: 8.5,  lastChange: '4 months ago', google: 4.5, googleReviews: 134, locked: true  },
+  { name: 'Meridian Mamilla Quarter',               rating: 8.7, reviews: 234, prevRating: 8.6,  lastChange: '1 week ago',   google: 4.5, googleReviews: 198, locked: true  },
+  { name: 'Horizon Midtown',            rating: 8.7, reviews: 212, prevRating: null, lastChange: null,           google: 4.5, googleReviews: 167, locked: true  },
+  { name: 'Horizon Levontin',           rating: 8.8, reviews: 64,  prevRating: null, lastChange: null,           google: 4.6, googleReviews: 52,  locked: true  },
+  { name: 'Horizon Seaport',            rating: 8.8, reviews: 149, prevRating: null, lastChange: null,           google: 4.2, googleReviews: 118, locked: true  },
+  { name: 'Numeral Residence Bay',          rating: 8.9, reviews: 690, prevRating: 9.0,  lastChange: '4 weeks ago',  google: 4.6, googleReviews: 445, locked: true  },
+  { name: 'The Galilion Retreat',                    rating: 8.9, reviews: 68,  prevRating: null, lastChange: null,           google: 4.5, googleReviews: 43,  locked: true  },
+  { name: 'Villa Meridian Moshava',         rating: 8.9, reviews: 175, prevRating: 8.8,  lastChange: '4 months ago', google: 4.6, googleReviews: 134, locked: true  },
+  { name: 'Villa Meridian Central',        rating: 8.9, reviews: 42,  prevRating: 8.8,  lastChange: '2 months ago', google: 4.5, googleReviews: 38,  locked: true  },
+  { name: 'Gonen Holiday Village', rating: 9.0, reviews: 45,  prevRating: null, lastChange: null,           google: 4.2, googleReviews: 56,  locked: true  },
+  { name: 'The Sterling Hotel',            rating: 9.1, reviews: 337, prevRating: 9.0,  lastChange: '1 month ago',  google: 4.2, googleReviews: 289, locked: true  },
+  { name: 'Northgate Lodge',           rating: 9.2, reviews: 41,  prevRating: null, lastChange: null,           google: 4.1, googleReviews: 67,  locked: true  },
+  { name: 'Devora Meridian',                rating: 9.2, reviews: 246, prevRating: null, lastChange: null,           google: 3.9, googleReviews: 178, locked: true  },
+  { name: 'Northshore Manor',              rating: 9.3, reviews: 296, prevRating: 9.2,  lastChange: '3 days ago',   google: 4.5, googleReviews: 234, locked: true  },
+  { name: 'Horizon Hatzuk Beach',           rating: 9.5, reviews: 152, prevRating: 9.4,  lastChange: '1 month ago',  google: 4.0, googleReviews: 98,  locked: true  },
+  { name: 'Isla Meridian Bay',            rating: 9.9, reviews: 292, prevRating: null, lastChange: null,           google: 4.2, googleReviews: 387, locked: true  },
+];
+
+function hotelRatingColor(r) {
+  if (r >= 9.0) return '#3a7a55';
+  if (r >= 8.5) return '#A88B52';
+  if (r >= 8.0) return '#516B84';
+  return '#B04040';
+}
+
+const BLDG_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex-shrink:0"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/><rect x="9" y="10" width="2" height="3"/><rect x="13" y="10" width="2" height="3"/><path d="M10 21v-3a2 2 0 014 0v3"/></svg>`;
+const LOCK_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted);flex-shrink:0"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`;
+
+let hotelSort = { key: 'booking', dir: 'asc' };
+
+function sortHotels(key) {
+  if (hotelSort.key === key) {
+    hotelSort.dir = hotelSort.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    hotelSort.key = key;
+    hotelSort.dir = key === 'name' ? 'asc' : 'asc';
+  }
+  renderHotelGrid(document.getElementById('hotel-search').value);
+}
+
+function hotelSortVal(h, key) {
+  if (key === 'name')        return h.name.toLowerCase();
+  if (key === 'booking')     return h.rating;
+  if (key === 'google')      return h.google;
+  if (key === 'tripadvisor') return h.platforms && h.platforms.tripadvisor ? h.platforms.tripadvisor.now : null;
+  if (key === 'expedia')     return h.platforms && h.platforms.expedia     ? h.platforms.expedia.now     : null;
+  return null;
+}
+
+function renderHotelGrid(filter) {
+  const q = (filter || '').toLowerCase();
+  const dir = hotelSort.dir === 'asc' ? 1 : -1;
+  const filtered = HOTEL_LIST.map((h, i) => ({...h, idx: i}))
+    .filter(h => h.name.toLowerCase().includes(q))
+    .sort((a, b) => {
+      const va = hotelSortVal(a, hotelSort.key), vb = hotelSortVal(b, hotelSort.key);
+      if (va === null && vb === null) return 0;
+      if (va === null) return 1;   // missing values always last
+      if (vb === null) return -1;
+      if (typeof va === 'string') return va < vb ? -dir : va > vb ? dir : 0;
+      return (va - vb) * dir;
+    });
+  // sort arrows
+  document.querySelectorAll('.pt-sort-arrow').forEach(sp => {
+    if (sp.dataset.col === hotelSort.key) {
+      sp.textContent = hotelSort.dir === 'asc' ? '↑' : '↓';
+      sp.classList.add('active');
+    } else {
+      sp.textContent = '↕';
+      sp.classList.remove('active');
+    }
+  });
+  // subtitle
+  const sub = document.querySelector('.portfolio-sub');
+  if (sub) {
+    const LBL = { name:'Name', booking:'Booking', google:'Google', tripadvisor:'TripAdvisor', expedia:'Expedia' };
+    const tail = (hotelSort.key === 'booking' && hotelSort.dir === 'asc')
+      ? 'lowest rated first'
+      : `sorted by ${LBL[hotelSort.key]} ${hotelSort.dir === 'asc' ? '↑' : '↓'}`;
+    sub.textContent = `25 hotels · 5 in portfolio · ${tail}`;
+  }
+  const tbody = document.getElementById('hotel-tbody');
+  const none  = document.getElementById('hotel-no-results');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    none.style.display = '';
+    return;
+  }
+  none.style.display = 'none';
+  tbody.innerHTML = filtered.map(h => {
+    const c = hotelRatingColor(h.rating);
+    if (h.locked) {
+      return `<tr class="pt-locked">
+        <td><div class="pt-name-cell">${LOCK_ICON}<span class="pt-locked-name">${h.name}</span></div></td>
+        <td class="pt-rating" style="opacity:1"><span style="color:${c}">${h.rating}</span></td>
+        <td class="pt-dash" style="text-align:right">—</td>
+        <td class="pt-dash" style="text-align:right">—</td>
+        <td class="pt-dash" style="text-align:right">—</td>
+        <td class="pt-action-cell"><button class="pt-boost-btn" onclick="openHotelModal(${h.idx})">Boost hotel's rating →</button></td>
+      </tr>`;
+    }
+    const p = h.platforms || {};
+    const bookCell = `<span style="color:${c}">${h.rating}</span>${h.cityRank ? `<span class="pt-city-rank">#${h.cityRank} in ${h.city}</span>` : ''}`;
+    const gVal  = p.google      ? p.google.now      : h.google;
+    const taVal = p.tripadvisor ? p.tripadvisor.now  : '—';
+    const exVal = p.expedia     ? p.expedia.now      : '—';
+    const pulse = '../guestiq/';
+    const radar = '../operatingiq/';
+    const responses = '../replyiq/';
+    return `<tr class="pt-row-link" onclick="window.open('${radar}','_blank')" title="Open ${h.name} in OperatingIQ">
+      <td><div class="pt-name-cell">${BLDG_ICON}<span class="pt-name-text pt-name-link">${h.name}</span></div></td>
+      <td class="pt-rating">${bookCell}</td>
+      <td class="pt-rating" style="color:${hotelRatingColor(gVal*2)}">${gVal}<span style="font-size:10px;font-weight:500;color:var(--muted)">/5</span></td>
+      <td class="pt-rating">${taVal}</td>
+      <td class="pt-rating">${exVal}</td>
+      <td class="pt-action-cell">
+        <a class="pt-pill-link" href="${pulse}" target="_blank" onclick="event.stopPropagation()">GuestIQ ↗</a>
+        <a class="pt-pill-link" href="${radar}" target="_blank" onclick="event.stopPropagation()">OperatingIQ ↗</a>
+        <a class="pt-pill-link" href="${responses}" target="_blank" onclick="event.stopPropagation()">ReplyIQ ↗</a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+
+function openHotelModal(idx) {
+  const h = HOTEL_LIST[idx];
+  currentModalHotel = h;
+  document.getElementById('hotel-modal-content').innerHTML = h.locked ? lockedModalHTML(h) : unlockedModalHTML(h);
+  document.getElementById('hotel-modal').classList.add('open');
+}
+
+// For hotels referenced outside the portfolio table (e.g. the "Improve with RatingIQ"
+// alert card) that don't have a HOTEL_LIST index — reuses the same locked-hotel modal.
+function openImproveModal(name, rating) {
+  const h = { name, rating };
+  currentModalHotel = h;
+  document.getElementById('hotel-modal-content').innerHTML = lockedModalHTML(h);
+  document.getElementById('hotel-modal').classList.add('open');
+}
+
+function unlockedModalHTML(h) {
+  const bookingIcon = `<svg width="14" height="14" viewBox="0 0 2732 2672" fill-rule="evenodd" clip-rule="evenodd" style="flex-shrink:0"><path d="m2732.032 513.03c0-283.141-229.978-513.015-513.118-513.015h-1705.89c-283.138 0-513.116 229.874-513.116 513.015v1645.965c0 283.066 229.978 513.016 513.118 513.016h1705.889c283.14 0 513.118-229.95 513.118-513.016z" fill="#0c3b7c"/><path d="m.001 1659.991h1364.531v1012.019h-1364.53z" fill="#0c3b7c"/><g fill-rule="nonzero"><path d="m1241.6 1768.638-220.052-.22v-263.12c0-56.22 21.808-85.48 69.917-92.165h150.136c107.068 0 176.328 67.507 176.328 176.766 0 112.219-67.507 178.63-176.328 178.739zm-220.052-709.694v-69.26c0-60.602 25.643-89.424 81.862-93.15h112.657c96.547 0 154.41 57.753 154.41 154.52 0 73.643-39.671 159.67-150.903 159.67h-198.026zm501.037 262.574-39.78-22.356 34.74-29.699c40.437-34.74 108.163-112.876 108.163-247.67 0-206.464-160.109-339.614-407.888-339.614h-282.738v-.11h-32.219c-73.424 2.74-132.273 62.466-133.04 136.329v1171.499h453.586c275.396 0 453.148-149.917 453.148-382.135 0-125.04-57.424-231.889-153.972-286.244" fill="#fff"/><path d="m1794.688 1828.066c0-89.492 72.178-161.894 161.107-161.894 89.154 0 161.669 72.402 161.669 161.894 0 89.379-72.515 161.894-161.67 161.894-88.928 0-161.106-72.515-161.106-161.894" fill="#00bafc"/></g></svg>`;
+  const googleIcon  = `<svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>`;
+  return `
+    <div class="modal-header">
+      <div class="hotel-modal-name">${h.name}</div>
+      <button class="modal-close" onclick="document.getElementById('hotel-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="hotel-modal-stat-row">
+      <div class="hotel-modal-stat">
+        <div class="hotel-modal-stat-lbl" style="color:#0071C2">Booking.com</div>
+        <div class="hotel-modal-stat-num" style="color:var(--foreground)">${h.rating}</div>
+        <div class="hotel-modal-stat-sub">${h.reviews.toLocaleString()} reviews · last 12 months</div>
+      </div>
+      <div class="hotel-modal-stat">
+        <div class="hotel-modal-stat-lbl" style="color:#4285F4">Google</div>
+        <div class="hotel-modal-stat-num" style="color:var(--foreground)">${h.google}<span style="font-size:14px;font-weight:500;color:var(--muted)">/5</span></div>
+        <div class="hotel-modal-stat-sub">${h.googleReviews.toLocaleString()} reviews</div>
+      </div>
+    </div>
+    ${(() => {
+      const delta = parseFloat(((h.google * 2) - h.rating).toFixed(1));
+      const isNeg = delta < 0;
+      const tipText = isNeg
+        ? `Google guests rate this hotel ${Math.abs(delta)} pts lower than Booking guests (Google ×2 vs Booking, same scale). Google reviewers tend to be more critical here.`
+        : `Google guests rate this hotel ${Math.abs(delta)} pts higher than Booking guests (Google ×2 vs Booking, same scale). Google reviewers are warmer on this property.`;
+      return `<div class="hotel-modal-delta">
+        <span class="delta-label">Booking vs Google gap</span>
+        <span class="delta-value ${isNeg?'neg':'pos'}">${delta > 0 ? '+' : ''}${delta}</span>
+        <span class="tip-wrap">
+          <span class="tip-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+          <span class="tip-box tip-above tip-left"><div class="tip-label">Booking vs Google</div><div class="tip-body">${tipText}</div></span>
+        </span>
+      </div>`;
+    })()}
+    ${h.platforms ? (() => {
+      const PLAT = [
+        { key:'booking',     label:'Booking.com', icon:bookingIcon, scale:10 },
+        { key:'google',      label:'Google',      icon:googleIcon,  scale:5  },
+        { key:'tripadvisor', label:'TripAdvisor',
+          icon:`<svg width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0"><rect width="14" height="14" rx="2.5" fill="#00AF87"/><text x="7" y="11" text-anchor="middle" fill="white" font-size="7" font-weight="800" font-family="Arial,sans-serif">TA</text></svg>`,
+          scale:10 },
+        { key:'expedia',     label:'Expedia',
+          icon:`<svg width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0"><rect width="14" height="14" rx="2.5" fill="#FFC72C"/><text x="7" y="11" text-anchor="middle" fill="#00355F" font-size="7.5" font-weight="800" font-family="Arial,sans-serif">E</text></svg>`,
+          scale:10 },
+      ];
+      const rows = PLAT.map(p => {
+        const d = h.platforms[p.key];
+        const delta = parseFloat((d.now - d.flagged).toFixed(1));
+        const sign = delta >= 0 ? '+' : '';
+        const cls = delta >= 0 ? 'up' : 'dn';
+        return `<div class="plat-row">
+          <div class="plat-id"><div class="plat-icon">${p.icon}</div><span class="plat-name">${p.label}</span></div>
+          <div class="plat-val flagged">${d.flagged}</div>
+          <div class="plat-val">${d.now}</div>
+          <div class="plat-delta ${cls}">${sign}${delta}</div>
+        </div>`;
+      }).join('');
+      const hdrs = `<div class="plat-col-hdr"></div>
+        <div class="plat-col-hdr">When flagged</div>
+        <div class="plat-col-hdr">Current Rating</div>
+        <div class="plat-col-hdr">Change</div>`;
+      return `<div class="plat-section">
+        <div class="plat-header">
+          <span class="plat-title">Platform Ratings</span>
+          <span class="plat-subtitle">· since RatingIQ flagged</span>
+        </div>
+        <div class="plat-grid">
+          ${hdrs}
+          ${rows}
+        </div>
+      </div>`;
+    })() : ''}
+    <div class="hotel-modal-links">
+      <a class="hotel-modal-link" href="#" target="_blank">${bookingIcon} Booking.com</a>
+      <a class="hotel-modal-link" href="#" target="_blank">${googleIcon} Google</a>
+      <a class="hotel-modal-link" href="../guestiq/" target="_blank"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> GuestIQ</a>
+      <a class="hotel-modal-link" href="../operatingiq/" target="_blank"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> OperatingIQ</a>
+    </div>`;
+}
+
+function lockedModalHTML(h) {
+  return `
+    <div class="modal-header">
+      <div class="hotel-modal-name">${h.name}</div>
+      <button class="modal-close" onclick="document.getElementById('hotel-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="hotel-modal-stat-row" style="grid-template-columns:1fr;max-width:220px;">
+      <div class="hotel-modal-stat">
+        <div class="hotel-modal-stat-lbl" style="color:#0071C2">Booking.com</div>
+        <div class="hotel-modal-stat-num" style="color:var(--foreground)">${h.rating}</div>
+        <div class="hotel-modal-stat-sub">Hotel's official rating</div>
+      </div>
+    </div>
+    <div class="hotel-modal-links">
+      <span class="hotel-modal-link" style="opacity:0.3;cursor:default"><svg width="14" height="14" viewBox="0 0 2732 2672" fill-rule="evenodd" clip-rule="evenodd" style="flex-shrink:0"><path d="m2732.032 513.03c0-283.141-229.978-513.015-513.118-513.015h-1705.89c-283.138 0-513.116 229.874-513.116 513.015v1645.965c0 283.066 229.978 513.016 513.118 513.016h1705.889c283.14 0 513.118-229.95 513.118-513.016z" fill="#0c3b7c"/><path d="m.001 1659.991h1364.531v1012.019h-1364.53z" fill="#0c3b7c"/><g fill-rule="nonzero"><path d="m1241.6 1768.638-220.052-.22v-263.12c0-56.22 21.808-85.48 69.917-92.165h150.136c107.068 0 176.328 67.507 176.328 176.766 0 112.219-67.507 178.63-176.328 178.739zm-220.052-709.694v-69.26c0-60.602 25.643-89.424 81.862-93.15h112.657c96.547 0 154.41 57.753 154.41 154.52 0 73.643-39.671 159.67-150.903 159.67h-198.026zm501.037 262.574-39.78-22.356 34.74-29.699c40.437-34.74 108.163-112.876 108.163-247.67 0-206.464-160.109-339.614-407.888-339.614h-282.738v-.11h-32.219c-73.424 2.74-132.273 62.466-133.04 136.329v1171.499h453.586c275.396 0 453.148-149.917 453.148-382.135 0-125.04-57.424-231.889-153.972-286.244" fill="#fff"/><path d="m1794.688 1828.066c0-89.492 72.178-161.894 161.107-161.894 89.154 0 161.669 72.402 161.669 161.894 0 89.379-72.515 161.894-161.67 161.894-88.928 0-161.106-72.515-161.106-161.894" fill="#00bafc"/></g></svg> Booking.com</span>
+      <span class="hotel-modal-link" style="opacity:0.3;cursor:default"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Pulse</span>
+      <span class="hotel-modal-link" style="opacity:0.3;cursor:default"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Radar</span>
+    </div>
+    <div style="border-top:1px solid var(--glass-border);margin-top:20px;padding-top:18px">
+      <div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">Add to your portfolio to unlock full review intelligence.</div>
+      <button class="locked-cta-btn" onclick="requestAddHotel()">Request to Add →</button>
+    </div>`;
+}
+
+function requestAddHotel() {
+  const h = currentModalHotel;
+  document.getElementById('hotel-modal-content').innerHTML = `
+    <div class="request-sent-state">
+      <div style="font-size:30px;margin-bottom:14px;color:var(--success)">✓</div>
+      <div style="font-size:16px;font-weight:700;color:var(--foreground);margin-bottom:8px">Request sent</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6;max-width:300px;margin:0 auto">
+        We've noted your interest in adding <strong style="color:var(--foreground)">${h.name}</strong> to your portfolio. Our team will be in touch.
+      </div>
+      <button class="hotel-modal-link" style="margin-top:20px;border:1px solid var(--glass-border)" onclick="document.getElementById('hotel-modal').classList.remove('open')">Close</button>
+    </div>`;
+}
+
+function closeHotelModalBackdrop(e) {
+  if (e.target === document.getElementById('hotel-modal'))
+    document.getElementById('hotel-modal').classList.remove('open');
+}
+
+document.getElementById('hotel-search').addEventListener('input', function() {
+  renderHotelGrid(this.value);
+});
+renderHotelGrid('');
+
+/* ── PEOPLE LEADERBOARD ── */
+const RADAR_BASE = '../operatingiq';
+// staff names are illustrative placeholders, so the deep-link opens their profile.
+const PEOPLE = [
+  { name: 'Noa Barak',       role: 'Front Office Manager', hotel: 'Meridian Old Town',        rating: 4.9, mentions: 88 },
+  { name: 'Sofia Bennett',      role: 'Activities Manager',   hotel: 'Aurelia Bay Resort',   rating: 4.8, mentions: 142 },
+  { name: 'Elena Rossi',   role: 'Front Office Manager', hotel: 'Aurelia Bay Resort',   rating: 4.7, mentions: 210 },
+  { name: 'Tamar Golan',           role: 'Guest Experience',     hotel: 'Meridian Market Quarter',    rating: 4.6, mentions: 71 },
+  { name: 'Diego Alvarez', role: 'F&B Manager',          hotel: 'Aurelia Bay Resort',   rating: 4.5, mentions: 98 },
+  { name: 'Shira Peretz',     role: 'Housekeeping',         hotel: 'Lakeview Manor',     rating: 4.5, mentions: 40 },
+  { name: 'Nora Bergstrom',    role: 'Housekeeping',         hotel: 'Aurelia Bay Resort',   rating: 4.4, mentions: 76 },
+  { name: 'Amit Shalev',      role: 'Spa Manager',          hotel: 'Serenity Saltwater Coast',         rating: 4.3, mentions: 52 },
+  { name: 'Rafael Duarte',     role: 'Front Office Manager', hotel: 'Aurelia Bay Resort',   rating: 4.2, mentions: 61 },
+  { name: 'Eitan Katz',        role: 'F&B Manager',          hotel: 'Meridian Market Quarter',    rating: 4.0, mentions: 45 },
+  { name: 'Pablo Ferreira',     role: 'Front Office Manager', hotel: 'Aurelia Bay Resort',   rating: 3.9, mentions: 54 },
+  { name: 'Mateus Costa',    role: 'Maintenance Manager',  hotel: 'Aurelia Bay Resort',   rating: 3.6, mentions: 33 },
+];
+function plInitials(name) {
+  return name.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function openPersonInRadar(name) {
+  window.open(RADAR_BASE + '/#team=' + encodeURIComponent(name), '_blank');
+}
+
+function renderPeopleLeaderboard() {
+  const list = document.getElementById('pl-list');
+
+  // group by hotel, rank members within each hotel, order hotels by their top performer
+  const byHotel = {};
+  PEOPLE.forEach(p => { (byHotel[p.hotel] = byHotel[p.hotel] || []).push(p); });
+  const widgets = Object.entries(byHotel)
+    .map(([hotel, members]) => ({ hotel, members: members.slice().sort((a, b) => b.rating - a.rating) }))
+    .sort((a, b) => b.members[0].rating - a.members[0].rating);
+
+  list.innerHTML = widgets.map(w => {
+    // Official rating (Booking.com, out of 10) converted to the same /5 scale as guest-mention ratings —
+    // the "equator": team members above it are lifting the hotel's rating, below it are dragging it down.
+    const hotelData = HOTEL_LIST.find(h => h.name === w.hotel);
+    const officialOn10 = hotelData ? hotelData.rating : null;
+    const officialOn5  = officialOn10 != null ? officialOn10 / 2 : null;
+
+    const equatorRow = officialOn5 != null ? `<div class="pl-equator" title="Hotel's official Booking.com rating">
+        <span class="pl-equator-line"></span>
+        <span class="pl-equator-label">Official rating · ${officialOn10.toFixed(1)}</span>
+        <span class="pl-equator-line"></span>
+      </div>` : '';
+
+    let equatorInserted = false;
+    const rowsArr = [];
+    w.members.forEach((p, i) => {
+      if (officialOn5 != null && !equatorInserted && p.rating < officialOn5) {
+        rowsArr.push(equatorRow);
+        equatorInserted = true;
+      }
+      const relCls   = officialOn5 == null ? '' : p.rating > officialOn5 ? 'pl-above' : p.rating < officialOn5 ? 'pl-below' : '';
+      const relColor = officialOn5 == null ? hotelRatingColor(p.rating * 2)
+        : p.rating > officialOn5 ? 'var(--success)' : p.rating < officialOn5 ? 'var(--danger)' : 'var(--muted)';
+      rowsArr.push(`<div class="pl-member" onclick="openPersonInRadar('${p.name.replace(/'/g, "\\'")}')" title="Open ${p.name} in Radar">
+        <div class="pl-member-rank">${i + 1}</div>
+        <div class="pl-avatar-sm">${plInitials(p.name)}</div>
+        <div class="pl-member-info">
+          <div class="pl-member-name">${p.name}</div>
+          <div class="pl-member-role">${p.role}</div>
+        </div>
+        <div class="pl-member-rating ${relCls}" style="color:${relColor}">${p.rating.toFixed(1)}<span class="pl-slash">/5</span></div>
+      </div>`);
+    });
+    // Every member is above the official rating — place the line at the bottom of the list
+    if (officialOn5 != null && !equatorInserted) rowsArr.push(equatorRow);
+
+    return `<div class="pl-widget">
+      <div class="pl-widget-hdr">${BLDG_ICON}<span class="pl-widget-name">${w.hotel}</span><span class="pl-widget-count">${w.members.length} ${w.members.length === 1 ? 'person' : 'people'}</span></div>
+      <div class="pl-col-hdr"><span class="pl-col-hdr-spacer"></span><span class="pl-col-hdr-name">Team Member</span><span class="pl-col-hdr-rating">Live Impact</span></div>
+      <div class="pl-widget-body">${rowsArr.join('')}</div>
+    </div>`;
+  }).join('');
+}
+renderPeopleLeaderboard();
+
+/* ── REVIEW ACTIVITY TABLE ── */
+const RA_DATA = {
+  daily: {
+    sub: '14 hotels received reviews today',
+    avgHeader: 'Today Review Avg',
+    rows: [
+      { num:'01', hotel:'Northshore Manor',       booking:9.3, avg:10.0, reviews:2  },
+      { num:'02', hotel:'The Galilion Retreat',              booking:8.9, avg:10.0, reviews:1  },
+      { num:'03', hotel:'Isla Meridian Bay',      booking:9.9, avg:10.0, reviews:1  },
+      { num:'04', hotel:'Numeral Residence Bay',    booking:8.9, avg:9.5,  reviews:2  },
+      { num:'05', hotel:'Devora Meridian',          booking:9.2, avg:9.3,  reviews:4  },
+      { num:'06', hotel:'Lakeview Manor',    booking:8.4, avg:9.0,  reviews:5  },
+      { num:'07', hotel:'Horizon Midtown',      booking:8.7, avg:8.0,  reviews:1  },
+      { num:'08', hotel:'Serenity Saltwater Coast',        booking:8.2, avg:7.6,  reviews:5  },
+      { num:'09', hotel:'Meridian Market Quarter',   booking:7.6, avg:7.3,  reviews:3  },
+      { num:'10', hotel:'Westport Suites',           booking:8.4, avg:7.0,  reviews:4  },
+      { num:'11', hotel:'Meridian Beach House',     booking:8.5, avg:7.0,  reviews:1  },
+      { num:'12', hotel:'Meridian Old Town',       booking:8.1, avg:6.5,  reviews:2  },
+      { num:'13', hotel:'Horizon Bay Resort',            booking:8.4, avg:4.0,  reviews:2  },
+      { num:'14', hotel:'Meridian Central',            booking:8.2, avg:3.0,  reviews:1  },
+      { num:'15', hotel:'Meridian Mamilla Quarter',         booking:8.7, avg:null, reviews:null },
+    ]
+  },
+  weekly: {
+    sub: 'Review averages — past 7 days',
+    avgHeader: 'Week Review Avg',
+    rows: [
+      { num:'01', hotel:'Isla Meridian Bay',      booking:9.9, avg:9.8,  reviews:18 },
+      { num:'02', hotel:'Northshore Manor',        booking:9.3, avg:9.4,  reviews:14 },
+      { num:'03', hotel:'Devora Meridian',          booking:9.2, avg:9.2,  reviews:21 },
+      { num:'04', hotel:'The Sterling Hotel',      booking:9.1, avg:9.0,  reviews:28 },
+      { num:'05', hotel:'Northgate Lodge',     booking:9.2, avg:8.9,  reviews:6  },
+      { num:'06', hotel:'The Galilion Retreat',              booking:8.9, avg:8.8,  reviews:9  },
+      { num:'07', hotel:'Numeral Residence Bay',    booking:8.9, avg:8.7,  reviews:47 },
+      { num:'08', hotel:'Lakeview Manor',    booking:8.4, avg:8.6,  reviews:19 },
+      { num:'09', hotel:'Horizon Bay Resort',            booking:8.4, avg:8.1,  reviews:31 },
+      { num:'10', hotel:'Meridian Mamilla Quarter',         booking:8.7, avg:8.0,  reviews:22 },
+      { num:'11', hotel:'Meridian Old Town',       booking:8.1, avg:7.9,  reviews:28 },
+      { num:'12', hotel:'Serenity Saltwater Coast',        booking:8.2, avg:7.8,  reviews:38 },
+      { num:'13', hotel:'Meridian Market Quarter',   booking:7.6, avg:7.4,  reviews:34 },
+      { num:'14', hotel:'Meridian Central',            booking:8.2, avg:6.9,  reviews:41 },
+    ]
+  },
+  monthly: {
+    sub: 'Review averages — past 30 days',
+    avgHeader: 'Month Review Avg',
+    rows: [
+      { num:'01', hotel:'Isla Meridian Bay',      booking:9.9, avg:9.7,  reviews:82 },
+      { num:'02', hotel:'Northshore Manor',        booking:9.3, avg:9.4,  reviews:64 },
+      { num:'03', hotel:'Devora Meridian',          booking:9.2, avg:9.1,  reviews:71 },
+      { num:'04', hotel:'The Sterling Hotel',      booking:9.1, avg:9.0,  reviews:94 },
+      { num:'05', hotel:'Numeral Residence Bay',    booking:8.9, avg:8.8,  reviews:184},
+      { num:'06', hotel:'The Galilion Retreat',              booking:8.9, avg:8.8,  reviews:24 },
+      { num:'07', hotel:'Horizon Midtown',      booking:8.7, avg:8.5,  reviews:76 },
+      { num:'08', hotel:'Meridian Mamilla Quarter',         booking:8.7, avg:8.4,  reviews:87 },
+      { num:'09', hotel:'Lakeview Manor',    booking:8.4, avg:8.3,  reviews:68 },
+      { num:'10', hotel:'Serenity Saltwater Coast',        booking:8.2, avg:8.1,  reviews:118},
+      { num:'11', hotel:'Meridian Old Town',       booking:8.1, avg:7.9,  reviews:98 },
+      { num:'12', hotel:'Meridian Market Quarter',   booking:7.6, avg:7.5,  reviews:124},
+      { num:'13', hotel:'Meridian Central',            booking:8.2, avg:7.2,  reviews:148},
+      { num:'14', hotel:'Horizon Bay Resort',            booking:8.4, avg:7.1,  reviews:112},
+    ]
+  }
+};
+
+function dotClass(avg) {
+  if (avg === null) return '';
+  if (avg >= 7.5) return 'green';
+  if (avg >= 6.5) return 'orange';
+  return 'red';
+}
+
+function renderRATable(period) {
+  const d = RA_DATA[period];
+  document.getElementById('ra-table-sub').textContent = d.sub;
+  document.getElementById('ra-avg-header').textContent = d.avgHeader;
+  document.getElementById('ra-tbody').innerHTML = d.rows.map(r => {
+    const avgCell = r.avg !== null
+      ? `<div class="ra-avg"><span class="ra-dot ${dotClass(r.avg)}"></span><span class="ra-avg-val">${r.avg.toFixed(1)}</span></div>`
+      : `<div class="ra-avg" style="color:var(--muted)">—</div>`;
+    const rev = r.reviews !== null ? r.reviews : '—';
+    return `<tr>
+      <td class="ra-num">${r.num}</td>
+      <td class="ra-hotel">${r.hotel}</td>
+      <td class="ra-score">${r.booking.toFixed(1)}</td>
+      <td>${avgCell}</td>
+      <td class="ra-reviews">${rev}</td>
+    </tr>`;
+  }).join('');
+}
+
+function switchTab(period, btn) {
+  document.querySelectorAll('.ra-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderRATable(period);
+}
+
+renderRATable('daily');
+
+/* ── STREAK LEADERBOARD ── */
+const STREAKS = [
+  { rank:'#1',  hotel:'Devora Meridian',              streak:'10 days', threshold:'≥ 9/10',  leader:true  },
+  { rank:'#2',  hotel:'Isla Meridian Bay',           streak:'9 days',  threshold:'> 10/10', leader:false },
+  { rank:'#3',  hotel:'Meridian Mamilla Quarter',              streak:'5 days',  threshold:'≥ 9/10',  leader:false },
+  { rank:'#4',  hotel:'Northshore Manor',             streak:'4 days',  threshold:'≥ 9/10',  leader:false },
+  { rank:'#5',  hotel:'Villa Meridian Old Town',      streak:'4 days',  threshold:'≥ 9/10',  leader:false },
+  { rank:'#6',  hotel:'Villa Meridian Moshava',        streak:'4 days',  threshold:'≥ 9/10',  leader:false },
+  { rank:'#7',  hotel:'The Galilion Retreat',                   streak:'3 days',  threshold:'≥ 9/10',  leader:false },
+  { rank:'#8',  hotel:'Horizon Hatzuk Beach',          streak:'1 day',   threshold:'≥ 10/10', leader:false },
+  { rank:'#9',  hotel:'Numeral Residence Bay',         streak:'1 day',   threshold:'≥ 9/10',  leader:false },
+  { rank:'#10', hotel:'Meridian Beach House',          streak:'—',       threshold:'≥ 9/10',  leader:false },
+  { rank:'#11', hotel:'Northgate Lodge',          streak:'—',       threshold:'≥ 9/10',  leader:false },
+  { rank:'#12', hotel:'Gonen Holiday Village',streak:'—',       threshold:'≥ 9/10',  leader:false },
+  { rank:'#13', hotel:'Horizon Levontin',          streak:'—',       threshold:'≥ 9/10',  leader:false },
+  { rank:'#14', hotel:'Horizon Midtown',           streak:'—',       threshold:'≥ 9/10',  leader:false },
+  { rank:'#15', hotel:'Horizon Seaport',           streak:'—',       threshold:'≥ 9/10',  leader:false },
+];
+
+function openStreakModal() {
+  document.getElementById('streak-tbody').innerHTML = STREAKS.map(s => `
+    <tr style="border-bottom:1px solid var(--subtle-border);${s.leader?'background:rgba(201,168,106,0.05)':''}">
+      <td style="padding:11px 0;font-size:11px;font-weight:700;color:${s.leader?'var(--gold)':'var(--muted)'}">${s.rank}</td>
+      <td style="padding:11px 0;font-size:13px;font-weight:${s.leader?'700':'500'};color:var(--foreground)">${s.hotel}</td>
+      <td style="padding:11px 0;text-align:right;font-size:13px;font-weight:800;color:${s.streak==='—'?'var(--muted)':'var(--foreground)'}">${s.streak}</td>
+      <td style="padding:11px 0;text-align:right;font-size:12px;color:var(--muted)">${s.threshold}</td>
+    </tr>`).join('');
+  document.getElementById('streak-modal').classList.add('open');
+}
+
+/* ── CHAIN COMPARISON ── */
+const CC_LABELS = ['Oct \'25','Nov \'25','Dec \'25','Jan \'26','Feb \'26','Mar \'26','Apr \'26','May \'26','Jun \'26'];
+const CC_CHAINS = [
+  { name:'Solmar Group',         hotels:3,  score:9.07, mom:-0.08, color:'#D32F2F', data:[9.15,9.14,9.12,9.11,9.09,9.08,9.07,9.08,9.07] },
+  { name:'Terrazzo Collection',          hotels:13, score:8.93, mom:+0.01, color:'#2E7D32', data:[8.91,8.91,8.92,8.91,8.93,8.92,8.93,8.92,8.93] },
+  { name:'Kastel Hotels',        hotels:24, score:8.90, mom:+0.06, color:'#7B1FA2', data:[8.84,8.84,8.86,8.87,8.88,8.88,8.89,8.89,8.90] },
+  { name:'Vantage Hospitality',         hotels:47, score:8.89, mom:+0.02, color:'#1565C0', data:[8.87,8.88,8.88,8.89,8.89,8.89,8.89,8.89,8.89] },
+  { name:'Primrose Hotels',          hotels:16, score:8.86, mom:-0.05, color:'#00796B', data:[8.91,8.90,8.90,8.89,8.88,8.87,8.87,8.87,8.86] },
+  { name:'Meridian Hotels',   hotels:25, score:8.75, mom:+0.05, color:'#C9A86A', data:[8.11,8.28,8.28,8.34,8.36,8.40,8.70,8.75,8.75], isSelf:true },
+  { name:'Continental Group',  hotels:10, score:8.73, mom:-0.04, color:'#E65100', data:[8.77,8.76,8.75,8.74,8.74,8.73,8.73,8.74,8.73] },
+  { name:'Bayview Group',            hotels:16, score:8.40, mom:+0.00, color:'#0097A7', data:[8.40,8.41,8.40,8.40,8.40,8.40,8.40,8.40,8.40] },
+  { name:'Bellcourt Hotels', hotels:9,  score:8.29, mom:-0.35, color:'#AD1457', data:[8.64,8.52,8.40,8.35,8.32,8.30,8.29,8.29,8.29] },
+  { name:'Northstar Hotels',         hotels:7,  score:8.23, mom:-0.02, color:'#558B2F', data:[8.25,8.24,8.23,8.23,8.23,8.23,8.23,8.23,8.23] },
+  { name:'Marlowe Group',          hotels:10, score:8.14, mom:-0.01, color:'#4527A0', data:[8.15,8.14,8.14,8.14,8.14,8.14,8.14,8.14,8.14] },
+  { name:'Aurora Hospitality',          hotels:5,  score:7.98, mom:-0.25, color:'#00838F', data:[8.23,8.10,8.02,7.99,7.98,7.98,7.98,7.98,7.98] },
+  { name:'Green Grove Hotels',     hotels:3,  score:7.47, mom:-0.63, color:'#BF360C', data:[8.10,7.90,7.70,7.55,7.50,7.48,7.47,7.47,7.47] },
+];
+const CC_AVG = { name:'Market Avg', color:'#B0BEC5', dashed:true,
+  data: CC_LABELS.map((_,i) => parseFloat((CC_CHAINS.reduce((s,c)=>s+c.data[i],0)/CC_CHAINS.length).toFixed(2))) };
+
+let ccSelected = new Set();
+
+function drawCompareChart() {
+  const active = [CC_CHAINS.find(c=>c.isSelf), CC_AVG, ...CC_CHAINS.filter(c=>!c.isSelf && ccSelected.has(c.name))];
+  const n = CC_LABELS.length;
+  const W = 860, H = 190;
+  const pL = 32, pR = 42, pT = 16, pB = 28;
+  const cW = W-pL-pR, cH = H-pT-pB;
+  const minY = 7.8, maxY = 9.3;
+  const cx = i => pL + i*(cW/(n-1));
+  const cy = v => pT + cH - ((v-minY)/(maxY-minY))*cH;
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="overflow:visible;display:block">`;
+
+  // gridlines
+  [8.0,8.3,8.6,8.9,9.2].forEach(v => {
+    s += `<line x1="${pL}" y1="${cy(v).toFixed(1)}" x2="${W-pR}" y2="${cy(v).toFixed(1)}" stroke="rgba(0,0,0,0.07)" stroke-width="1" stroke-dasharray="4,3"/>`;
+    s += `<text x="${pL-5}" y="${cy(v)+4}" font-size="10" fill="#8A9AAD" text-anchor="end">${v.toFixed(1)}</text>`;
+  });
+
+  // lines
+  active.forEach(chain => {
+    const pts = chain.data.map((v,i)=>`${i?'L':'M'}${cx(i).toFixed(1)},${cy(v).toFixed(1)}`).join(' ');
+    const isDashed = chain.dashed;
+    const isSelf = chain.isSelf;
+    s += `<path d="${pts}" fill="none" stroke="${chain.color}" stroke-width="${isSelf?2.8:isDashed?1.5:2}" stroke-linecap="round" stroke-linejoin="round" ${isDashed?'stroke-dasharray="6,4"':''}/>`;
+    // end dot
+    const last = chain.data[n-1];
+    if (!isDashed) {
+      s += `<circle cx="${cx(n-1).toFixed(1)}" cy="${cy(last).toFixed(1)}" r="${isSelf?5:4}" fill="${isSelf?chain.color:'white'}" stroke="${chain.color}" stroke-width="2"/>`;
+      s += `<text x="${(cx(n-1)+8).toFixed(1)}" y="${(cy(last)+4).toFixed(1)}" font-size="11" font-weight="700" fill="${chain.color}">${last.toFixed(2)}</text>`;
+    }
+  });
+
+  // x labels
+  CC_LABELS.forEach((lbl,i) => {
+    s += `<text x="${cx(i).toFixed(1)}" y="${H-pB+16}" font-size="10" fill="#8A9AAD" text-anchor="middle">${lbl}</text>`;
+  });
+
+  s += '</svg>';
+  document.getElementById('cc-chart-wrap').innerHTML = s;
+
+  // Legend
+  const legendItems = active.map(c => `<div class="cc-legend-item">
+    ${c.dashed
+      ? `<div class="cc-legend-line" style="background:${c.color};opacity:.6"></div>`
+      : `<div class="cc-legend-dot" style="background:${c.color}"></div>`}
+    <span>${c.name}</span>
+  </div>`).join('');
+  document.getElementById('cc-legend').innerHTML = legendItems;
+}
+
+function renderCCTable() {
+  document.getElementById('cc-tbody').innerHTML = CC_CHAINS.map((c,i) => {
+    const isActive = ccSelected.has(c.name);
+    const mom = c.mom;
+    const momClass = mom > 0 ? 'pos' : mom < 0 ? 'neg' : 'flat';
+    const momStr = mom === 0 ? '0.00' : (mom > 0 ? '+' : '') + mom.toFixed(2);
+
+    if (c.isSelf) {
+      return `<tr class="cc-self">
+        <td class="cc-rank">#${i+1}</td>
+        <td class="cc-name">${c.name} <span class="cc-you-badge">You</span></td>
+        <td class="cc-hotels">${c.hotels}</td>
+        <td class="cc-score" style="color:var(--gold-dark)">${c.score.toFixed(2)}</td>
+        <td class="cc-mom ${momClass}">${momStr}</td>
+        <td class="cc-toggle"><div class="cc-legend-dot" style="background:${c.color};margin-left:auto"></div></td>
+      </tr>`;
+    }
+
+    return `<tr onclick="toggleCC('${c.name}')">
+      <td class="cc-rank">#${i+1}</td>
+      <td class="cc-name">${c.name}</td>
+      <td class="cc-hotels">${c.hotels}</td>
+      <td class="cc-score">${c.score.toFixed(2)}</td>
+      <td class="cc-mom ${momClass}">${momStr}</td>
+      <td class="cc-toggle">
+        ${isActive
+          ? `<div class="cc-legend-dot" style="background:${c.color};margin-left:auto"></div>`
+          : `<button class="cc-add-btn" onclick="event.stopPropagation();toggleCC('${c.name}')">+</button>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleCC(name) {
+  if (ccSelected.has(name)) {
+    ccSelected.delete(name);
+  } else {
+    ccSelected.add(name);
+  }
+  drawCompareChart();
+  renderCCTable();
+}
+
+drawCompareChart();
+renderCCTable();
+
+function openMonthlyModal() {
+  document.getElementById('modal-monthly').classList.add('open');
+}
+function closeMonthlyOnBackdrop(e) {
+  if (e.target === document.getElementById('modal-monthly'))
+    document.getElementById('modal-monthly').classList.remove('open');
+}
+
+// Chart dot tooltips
+document.querySelectorAll('.chart-dot').forEach(dot => {
+  const tip = document.getElementById('chart-tip');
+  dot.addEventListener('mouseenter', function(e) {
+    const month = this.dataset.month;
+    const val   = this.dataset.val;
+    tip.textContent = month + ' · ' + val;
+    const circle = this.querySelector('circle');
+    const svgEl  = document.getElementById('monthly-chart');
+    const svgRect = svgEl.getBoundingClientRect();
+    const vb = svgEl.viewBox.baseVal;
+    const cx = parseFloat(circle.getAttribute('cx'));
+    const cy = parseFloat(circle.getAttribute('cy'));
+    const scaleX = svgRect.width  / vb.width;
+    const scaleY = svgRect.height / vb.height;
+    const chartWrap = document.querySelector('.chart-wrap');
+    const wrapRect  = chartWrap.getBoundingClientRect();
+    tip.style.left = (svgRect.left - wrapRect.left + cx * scaleX) + 'px';
+    tip.style.top  = (svgRect.top  - wrapRect.top  + cy * scaleY - 10) + 'px';
+    tip.classList.add('show');
+  });
+  dot.addEventListener('mouseleave', () => tip.classList.remove('show'));
+});
+
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-open');
+}
+
+/* Topbar scroll bg */
+const topbar = document.querySelector('.topbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 10) {
+    topbar.style.background = 'rgba(255,255,255,0.95)';
+    topbar.style.boxShadow = '0 1px 0 rgba(0,0,0,0.07)';
+    topbar.style.backdropFilter = 'blur(8px)';
+  } else {
+    topbar.style.background = 'transparent';
+    topbar.style.boxShadow = 'none';
+    topbar.style.backdropFilter = 'none';
+  }
+}, { passive: true });
+
+function toggleAccordion(toggle) {
+  toggle.classList.toggle('open');
+  toggle.nextElementSibling.classList.toggle('open');
+}
+
+/* ── PER-PROPERTY MONTHLY CHARTS ── */
+const PROP_MONTHLY = [
+  { name: 'Aurelia Bay Resort', total: '3,025',
+    reviews: [8,265,310,335,330,365,358,382,268,145,162,258,239],
+    ratings: [7.7,8.1,7.9,8.1,8.0,8.2,8.3,8.4,8.5,8.6,8.5,8.1,8.0] },
+  { name: 'Meridian Market Quarter',  total: '457',
+    reviews: [2,36,40,45,42,38,40,44,34,28,30,40,38],
+    ratings: [7.3,7.5,7.4,7.6,7.5,7.6,7.7,7.8,7.7,7.6,7.5,7.6,7.6] },
+  { name: 'Meridian Old Town',      total: '384',
+    reviews: [2,30,35,38,36,32,34,38,28,22,24,34,31],
+    ratings: [7.8,8.0,7.9,8.1,8.0,8.1,8.2,8.2,8.1,8.0,8.0,8.1,8.1] },
+  { name: 'Serenity Saltwater Coast',       total: '418',
+    reviews: [2,34,38,42,40,36,38,40,30,24,26,36,32],
+    ratings: [7.9,8.1,8.0,8.2,8.1,8.2,8.3,8.3,8.2,8.1,8.1,8.2,8.2] },
+  { name: 'Lakeview Manor',   total: '256',
+    reviews: [1,20,24,26,24,22,22,24,18,14,16,22,21],
+    ratings: [8.1,8.3,8.2,8.4,8.3,8.4,8.5,8.5,8.4,8.3,8.3,8.4,8.4] }
+];
+const PROP_XS  = [60,120,180,240,300,360,420,480,540,600,660,720,780];
+const PROP_MOS = ["Jun '25","Jul '25","Aug '25","Sep '25","Oct '25","Nov '25","Dec '25","Jan '26","Feb '26","Mar '26","Apr '26","May '26","Jun '26"];
+
+function buildPropChartSVG(reviews, ratings, propIdx) {
+  const BL = 195, TOP = 20, BAR_W = 36, chartH = BL - TOP;
+  const maxRev  = Math.max(...reviews);
+  const revTop  = Math.ceil(maxRev / 50) * 50 || 50;
+  const minRat  = Math.min(...ratings) - 0.15;
+  const maxRat  = Math.max(...ratings) + 0.15;
+  const ratY    = r => (TOP + chartH * (1 - (r - minRat) / (maxRat - minRat))).toFixed(1);
+  let s = '';
+  // gridlines + y-axis labels
+  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+    const y   = (TOP + chartH * (1 - t)).toFixed(1);
+    const rv  = Math.round(revTop * t);
+    const rt  = (minRat + (maxRat - minRat) * t).toFixed(1);
+    const isB = t === 0;
+    s += `<line x1="30" y1="${y}" x2="810" y2="${y}" stroke="${isB ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.07)'}" stroke-width="1"${isB ? '' : ' stroke-dasharray="4,3"'}/>`;
+    s += `<text x="24" y="${(+y + 4).toFixed(1)}" font-size="11" fill="#8A9AAD" text-anchor="end">${rv}</text>`;
+    if (!isB) s += `<text x="828" y="${(+y + 4).toFixed(1)}" font-size="11" fill="#C9A86A">${rt}</text>`;
+  });
+  // bars
+  reviews.forEach((v, i) => {
+    const bh = Math.max(2, (v / revTop) * chartH);
+    s += `<rect x="${PROP_XS[i] - BAR_W / 2}" y="${(BL - bh).toFixed(1)}" width="${BAR_W}" height="${bh.toFixed(1)}" fill="#B2BEC9" rx="2"/>`;
+  });
+  // rating line
+  s += `<path d="M ${ratings.map((r, i) => `${PROP_XS[i]},${ratY(r)}`).join(' L ')}" fill="none" stroke="#C9A86A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  // dots with hover groups — lowest low in red, highest high in green
+  const minIdx = ratings.indexOf(Math.min(...ratings));
+  const maxIdx = ratings.indexOf(Math.max(...ratings));
+  ratings.forEach((r, i) => {
+    const last = i === ratings.length - 1;
+    const isMin = i === minIdx, isMax = i === maxIdx;
+    const emph = isMin || isMax || last;
+    const fill   = isMin ? '#C0392B' : isMax ? '#3a7a55' : last ? '#C9A86A' : 'white';
+    const stroke = isMin ? '#C0392B' : isMax ? '#3a7a55' : '#C9A86A';
+    s += `<g class="prop-dot" data-pi="${propIdx}" data-mi="${i}">`;
+    s += `<circle cx="${PROP_XS[i]}" cy="${ratY(r)}" r="14" fill="transparent"/>`;
+    s += `<circle cx="${PROP_XS[i]}" cy="${ratY(r)}" r="${emph ? 5.5 : 4.5}" fill="${fill}" stroke="${stroke}" stroke-width="2" pointer-events="none"/>`;
+    s += `</g>`;
+  });
+  // month labels
+  PROP_MOS.forEach((m, i) => {
+    s += `<text x="${PROP_XS[i]}" y="214" font-size="11" fill="#8A9AAD" text-anchor="middle">${m}</text>`;
+  });
+  return `<div class="prop-chart-wrap"><div class="prop-chart-tip"></div><svg viewBox="0 0 840 220" width="100%" height="220" style="display:block;overflow:visible">${s}</svg></div>`;
+}
+
+function setupPropChartHover(container) {
+  const tip  = container.querySelector('.prop-chart-tip');
+  const svg  = container.querySelector('svg');
+  const wrap = container.querySelector('.prop-chart-wrap');
+  container.querySelectorAll('.prop-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', function() {
+      const circle   = this.querySelector('circle');
+      const svgRect  = svg.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const vb = svg.viewBox.baseVal;
+      const cx = parseFloat(circle.getAttribute('cx'));
+      const cy = parseFloat(circle.getAttribute('cy'));
+      const scaleX = svgRect.width  / vb.width;
+      const scaleY = svgRect.height / vb.height;
+      const pi = +this.dataset.pi, mi = +this.dataset.mi;
+      const h  = PROP_MONTHLY[pi];
+      tip.textContent = PROP_MOS[mi] + ' · ' + h.reviews[mi].toLocaleString() + ' reviews · ' + h.ratings[mi];
+      tip.style.left    = (svgRect.left - wrapRect.left + cx * scaleX) + 'px';
+      tip.style.top     = (svgRect.top  - wrapRect.top  + cy * scaleY - 10) + 'px';
+      tip.style.opacity = '1';
+    });
+    dot.addEventListener('mouseleave', () => tip.style.opacity = '0');
+  });
+}
+
+function togglePropChart(hdr) {
+  hdr.classList.toggle('open');
+  const body = hdr.nextElementSibling;
+  body.classList.toggle('open');
+  if (body.classList.contains('open') && !body.dataset.rendered) {
+    const pi = +hdr.dataset.idx, h = PROP_MONTHLY[pi];
+    body.innerHTML = buildPropChartSVG(h.reviews, h.ratings, pi);
+    body.dataset.rendered = '1';
+    setupPropChartHover(body);
+  }
+}
+
+(function buildPropChartList() {
+  const list = document.getElementById('prop-charts-list');
+  if (!list) return;
+  list.innerHTML = PROP_MONTHLY.map((h, i) => `
+    <div class="prop-chart-row">
+      <div class="prop-chart-hdr" data-idx="${i}" onclick="togglePropChart(this)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--muted)"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/><rect x="9" y="10" width="2" height="3"/><rect x="13" y="10" width="2" height="3"/><path d="M10 21v-3a2 2 0 014 0v3"/></svg>
+          <span class="prop-chart-name">${h.name}</span>
+          <span class="prop-chart-meta">${h.total} reviews · past 12 months</span>
+        </div>
+        <span class="prop-chart-chevron">▾</span>
+      </div>
+      <div class="prop-chart-body"></div>
+    </div>`).join('');
+})();
+
+function openWinsModal() {
+  document.getElementById('wins-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeWinsModal(e) {
+  if (e && e.target !== document.getElementById('wins-overlay')) return;
+  document.getElementById('wins-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+</script>
+<!-- WINS MODAL -->
+<div class="wins-overlay" id="wins-overlay" onclick="closeWinsModal(event)">
+  <div class="wins-modal" onclick="event.stopPropagation()">
+
+    <div class="wins-modal-hdr">
+      <div>
+        <div class="wins-modal-title">Wins Since RatingIQ</div>
+        <div class="wins-modal-sub">Meridian Hotels chain · All improvements tracked</div>
+      </div>
+      <button class="wins-modal-close" onclick="closeWinsModal()">✕</button>
+    </div>
+
+    <!-- Platform Climbs -->
+    <div class="wins-sec-label">Platform Rating Climbs</div>
+    <div class="modal-climbs-grid" style="margin-bottom:36px">
+      <div class="modal-climb">
+        <div class="modal-climb-plat">
+          <svg width="24" height="24" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="white" stroke="#E0E0E0" stroke-width="1.5"/><g transform="translate(10,10) scale(1.1667)"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></g></svg>
+          <span class="modal-climb-plat-name">Google</span>
+        </div>
+        <div class="modal-climb-hotel">Horizon Bay Resort</div>
+        <div class="modal-climb-nums">
+          <span class="modal-climb-before">4.1</span>
+          <span class="modal-climb-arr">→</span>
+          <span class="modal-climb-after">4.4<span class="modal-climb-suffix">/5</span></span>
+        </div>
+        <div class="modal-climb-badge">↑ +0.3</div>
+      </div>
+      <div class="modal-climb">
+        <div class="modal-climb-plat">
+          <svg width="24" height="24" viewBox="0 0 2732 2672" fill-rule="evenodd" clip-rule="evenodd"><path d="m2732.032 513.03c0-283.141-229.978-513.015-513.118-513.015h-1705.89c-283.138 0-513.116 229.874-513.116 513.015v1645.965c0 283.066 229.978 513.016 513.118 513.016h1705.889c283.14 0 513.118-229.95 513.118-513.016z" fill="#0c3b7c"/><path d="m.001 1659.991h1364.531v1012.019h-1364.53z" fill="#0c3b7c"/><g fill-rule="nonzero"><path d="m1241.6 1768.638-220.052-.22v-263.12c0-56.22 21.808-85.48 69.917-92.165h150.136c107.068 0 176.328 67.507 176.328 176.766 0 112.219-67.507 178.63-176.328 178.739zm-220.052-709.694v-69.26c0-60.602 25.643-89.424 81.862-93.15h112.657c96.547 0 154.41 57.753 154.41 154.52 0 73.643-39.671 159.67-150.903 159.67h-198.026zm501.037 262.574-39.78-22.356 34.74-29.699c40.437-34.74 108.163-112.876 108.163-247.67 0-206.464-160.109-339.614-407.888-339.614h-282.738v-.11h-32.219c-73.424 2.74-132.273 62.466-133.04 136.329v1171.499h453.586c275.396 0 453.148-149.917 453.148-382.135 0-125.04-57.424-231.889-153.972-286.244" fill="#fff"/><path d="m1794.688 1828.066c0-89.492 72.178-161.894 161.107-161.894 89.154 0 161.669 72.402 161.669 161.894 0 89.379-72.515 161.894-161.67 161.894-88.928 0-161.106-72.515-161.106-161.894" fill="#00bafc"/></g></svg>
+          <span class="modal-climb-plat-name">Booking.com</span>
+        </div>
+        <div class="modal-climb-hotel">Villa Meridian Central</div>
+        <div class="modal-climb-nums">
+          <span class="modal-climb-before">8.5</span>
+          <span class="modal-climb-arr">→</span>
+          <span class="modal-climb-after">8.7<span class="modal-climb-suffix">/10</span></span>
+        </div>
+        <div class="modal-climb-badge">↑ +0.2</div>
+      </div>
+      <div class="modal-climb">
+        <div class="modal-climb-plat">
+          <svg width="24" height="24" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#00AA6C"/><text x="24" y="34" text-anchor="middle" fill="white" font-size="28" font-weight="800" font-family="Arial,sans-serif">T</text></svg>
+          <span class="modal-climb-plat-name">Tripadvisor</span>
+        </div>
+        <div class="modal-climb-hotel">Meridian Old Quarter</div>
+        <div class="modal-climb-nums">
+          <span class="modal-climb-before">4.2</span>
+          <span class="modal-climb-arr">→</span>
+          <span class="modal-climb-after">4.5<span class="modal-climb-suffix">/5</span></span>
+        </div>
+        <div class="modal-climb-badge">↑ +0.3</div>
+      </div>
+      <div class="modal-climb">
+        <div class="modal-climb-plat">
+          <svg width="24" height="24" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#1B3F8B"/><text x="24" y="34" text-anchor="middle" fill="#FFD700" font-size="28" font-weight="800" font-family="Arial,sans-serif">E</text></svg>
+          <span class="modal-climb-plat-name">Expedia</span>
+        </div>
+        <div class="modal-climb-hotel">Horizon Bay Resort</div>
+        <div class="modal-climb-nums">
+          <span class="modal-climb-before">7.8</span>
+          <span class="modal-climb-arr">→</span>
+          <span class="modal-climb-after">8.1<span class="modal-climb-suffix">/10</span></span>
+        </div>
+        <div class="modal-climb-badge">↑ +0.3</div>
+      </div>
+    </div>
+
+    <!-- Issues In Incline -->
+    <div class="wins-sec-label">Issues In Incline</div>
+
+    <!-- Issue: Misleading Listings -->
+    <div class="issue-block">
+      <div class="issue-hdr">
+        <div>
+          <div class="issue-title">Misleading Listings And Unmet Expectations</div>
+          <div class="issue-hotel-tag">Villa Meridian Central</div>
+        </div>
+        <a href="../operatingiq/#issue-3" target="_blank" class="issue-radar-link" >View in OperatingIQ ↗</a>
+      </div>
+
+      <div class="ib-wrap">
+        <div class="ib-nums-row">
+          <div class="ib-num cur" style="left:28%">8.0</div>
+          <div class="ib-num imp" style="left:50%">8.04</div>
+          <div class="ib-num tgt" style="left:74%">8.17</div>
+        </div>
+        <div class="ib-track">
+          <div class="ib-fill-g" style="left:28%;width:22%"></div>
+          <div class="ib-fill-au" style="left:50%;width:24%"></div>
+          <div class="ib-dot cur" style="left:28%"></div>
+          <div class="ib-dot imp" style="left:50%"></div>
+          <div class="ib-dot tgt" style="left:74%"></div>
+        </div>
+        <div class="ib-legend">
+          <div class="ib-legend-row"><span class="ib-legend-dot cur"></span><span class="ib-legend-text">Current Rating</span></div>
+          <div class="ib-legend-row"><span class="ib-legend-dot imp"></span><span class="ib-legend-text">Live Impact Shift · Since Flagged</span></div>
+          <div class="ib-legend-row"><span class="ib-legend-dot tgt"></span><span class="ib-legend-text">Quarter Potential Target · If Resolved</span></div>
+        </div>
+      </div>
+
+      <div class="issue-accordion-wrap">
+      <div class="issue-accordion-toggle" onclick="toggleAccordion(this)">
+        <span class="issue-accordion-label">Team & Tasks</span>
+        <span class="issue-accordion-chevron">▾</span>
+      </div>
+      <div class="issue-accordion-body">
+        <div class="issue-accordion-inner">
+          <div class="issue-sub-label">Assigned Team</div>
+          <div class="team-grid">
+            <div class="team-card">
+              <div class="team-avatar-wrap">
+                <span class="team-crown">👑</span>
+                <div class="team-avatar">JP</div>
+              </div>
+              <div class="team-name">Elena Rossi</div>
+              <div class="team-dept">Guest Experience</div>
+            </div>
+            <div class="team-card">
+              <div class="team-avatar-wrap">
+                <span class="team-crown">👑</span>
+                <div class="team-avatar">JR</div>
+              </div>
+              <div class="team-name">Pablo Ferreira</div>
+              <div class="team-dept">Front Office</div>
+            </div>
+          </div>
+          <div class="issue-accordion-divider"></div>
+          <div class="issue-sub-label">Tasks</div>
+          <table class="tasks-table">
+            <thead>
+              <tr><th>Date</th><th>Status</th><th>Description</th><th>Due</th><th>Assignee</th><th>Role</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="task-date">01.05.2026</td>
+                <td><span class="st-chip overdue">Overdue ▾</span></td>
+                <td>We are making sure Booking.com guests are getting the rooms they pay for</td>
+                <td class="task-due">15.06.2026</td>
+                <td>Elena Rossi</td>
+                <td style="color:var(--muted)">Guest Experience Manager</td>
+              </tr>
+              <tr>
+                <td class="task-date">12.05.2026</td>
+                <td><span class="st-chip inprog">In progress ▾</span></td>
+                <td>Monitorizar las quejas relativas a fotos o características que puedan dar lugar a queja</td>
+                <td class="task-due">31.07.2026</td>
+                <td>Elena Rossi</td>
+                <td style="color:var(--muted)">Guest Experience Manager</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="issue-block-sep"></div>
+
+    <!-- Issue: Staff Communication -->
+    <div class="issue-block">
+      <div class="issue-hdr">
+        <div>
+          <div class="issue-title">Staff Communication & Responsiveness</div>
+          <div class="issue-hotel-tag">Aurelia Bay Resort</div>
+        </div>
+        <a href="../operatingiq/#issue-7" target="_blank" class="issue-radar-link">View in OperatingIQ ↗</a>
+      </div>
+
+      <div class="ib-wrap">
+        <div class="ib-nums-row">
+          <div class="ib-num cur" style="left:28%">7.8</div>
+          <div class="ib-num imp" style="left:52%">7.86</div>
+          <div class="ib-num tgt" style="left:76%">8.10</div>
+        </div>
+        <div class="ib-track">
+          <div class="ib-fill-g" style="left:28%;width:24%"></div>
+          <div class="ib-fill-au" style="left:52%;width:24%"></div>
+          <div class="ib-dot cur" style="left:28%"></div>
+          <div class="ib-dot imp" style="left:52%"></div>
+          <div class="ib-dot tgt" style="left:76%"></div>
+        </div>
+        <div class="ib-legend">
+          <div class="ib-legend-row"><span class="ib-legend-dot cur"></span><span class="ib-legend-text">Current Rating</span></div>
+          <div class="ib-legend-row"><span class="ib-legend-dot imp"></span><span class="ib-legend-text">Live Impact Shift · Since Flagged</span></div>
+          <div class="ib-legend-row"><span class="ib-legend-dot tgt"></span><span class="ib-legend-text">Quarter Potential Target · If Resolved</span></div>
+        </div>
+      </div>
+
+      <div class="issue-accordion-wrap">
+      <div class="issue-accordion-toggle" onclick="toggleAccordion(this)">
+        <span class="issue-accordion-label">Team & Tasks</span>
+        <span class="issue-accordion-chevron">▾</span>
+      </div>
+      <div class="issue-accordion-body">
+        <div class="issue-accordion-inner">
+          <div class="issue-sub-label">Assigned Team</div>
+          <div class="team-grid">
+            <div class="team-card">
+              <div class="team-avatar-wrap">
+                <span class="team-crown">👑</span>
+                <div class="team-avatar" style="background:#4A6741">MT</div>
+              </div>
+              <div class="team-name">Carla Mendes</div>
+              <div class="team-dept">Operations</div>
+            </div>
+            <div class="team-card">
+              <div class="team-avatar-wrap">
+                <span class="team-crown">👑</span>
+                <div class="team-avatar" style="background:#5C4A7A">CV</div>
+              </div>
+              <div class="team-name">Bruno Alves</div>
+              <div class="team-dept">Front Desk</div>
+            </div>
+          </div>
+          <div class="issue-accordion-divider"></div>
+          <div class="issue-sub-label">Tasks</div>
+          <table class="tasks-table">
+            <thead>
+              <tr><th>Date</th><th>Status</th><th>Description</th><th>Due</th><th>Assignee</th><th>Role</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="task-date">05.05.2026</td>
+                <td><span class="st-chip inprog">In progress ▾</span></td>
+                <td>Train front desk staff on response time protocols for guest requests and complaints</td>
+                <td class="task-due">30.06.2026</td>
+                <td>Carla Mendes</td>
+                <td style="color:var(--muted)">Operations Manager</td>
+              </tr>
+              <tr>
+                <td class="task-date">20.05.2026</td>
+                <td><span class="st-chip done">Done ▾</span></td>
+                <td>Implement daily briefing checklist for shift handovers to improve communication continuity</td>
+                <td class="task-due">15.06.2026</td>
+                <td>Bruno Alves</td>
+                <td style="color:var(--muted)">Front Desk Supervisor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="ib-caption" style="margin-top:28px">Calculated in isolation — as if this issue were the only driver of your score.</p>
+
+  </div>
+</div>
+
+</body>
+</html>
